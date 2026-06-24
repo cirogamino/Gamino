@@ -167,12 +167,68 @@ The action handler switches on `intent` to dispatch to the correct `TodoManager`
 
 Supported via Tailwind's `dark:` variant (system preference via `prefers-color-scheme`). Always provide both light and dark styles for new UI elements.
 
+### Dark Mode Testing Checklist
+
+Since dark mode is driven by `prefers-color-scheme` (no toggle in the app), test both themes manually:
+
+1. Open Chrome DevTools → Rendering → "Emulate CSS media feature prefers-color-scheme" → toggle between `light` and `dark`
+2. Verify every new element has both light and dark styles:
+   - Backgrounds: `bg-*` paired with `dark:bg-*`
+   - Text: `text-*` paired with `dark:text-*`
+   - Borders: `border-*` paired with `dark:border-*`
+   - Inputs: check placeholder text contrast in both modes
+3. Check interactive states (`hover:`, `focus:`) are visible in both themes
+4. Verify `shadow` classes are visible against dark backgrounds (may need `dark:shadow-lg` or adjusted opacity)
+5. Test the base body styles in `app/tailwind.css` — they set `bg-white dark:bg-gray-950` and `color-scheme: dark`
+
 ### Testing
 
 - Tests run in Cloudflare's Vitest worker pool (miniflare), which provides real KV bindings.
 - Test files go in `test/` and must match `test/**/*.test.ts`.
 - Business logic tests use `TodoManager` directly against the miniflare KV binding.
 - Import test env via `import { env } from "cloudflare:test"` — this is a virtual module, not an npm package.
+
+## Walkthrough: Adding a New Route
+
+Example: adding a static `/about` page.
+
+**1. Create the route file `app/routes/about.tsx`:**
+```tsx
+import type { MetaFunction } from "@remix-run/cloudflare";
+
+export const meta: MetaFunction = () => {
+  return [{ title: "About — Todo List" }];
+};
+
+export default function About() {
+  return (
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
+      <div className="max-w-md mx-auto">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
+          About
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300">
+          A simple todo list that expires after 5 minutes.
+        </p>
+      </div>
+    </div>
+  );
+}
+```
+
+**2. No loader or action needed** for a static page. If the page needs data, add a `loader` that accesses bindings via `context.cloudflare.env`.
+
+**3. Verify:**
+```bash
+npm run lint && npm run typecheck
+```
+Visit `http://localhost:5173/about` in dev mode to confirm.
+
+Notes:
+- The file `about.tsx` maps to `/about` automatically (Remix flat-file routing)
+- Follow existing Tailwind patterns: `min-h-screen`, `max-w-md mx-auto`, dark mode pairs
+- Use `default export` for the component — this is a route file
+- No need to register the route anywhere — Remix discovers it from the filesystem
 
 ## Walkthrough: Adding a New Feature to TodoManager
 
@@ -251,6 +307,114 @@ The app has accessibility gaps that should be addressed when modifying UI:
 - Use `aria-live="polite"` for dynamic content updates that should be announced to screen readers
 - Pair every `<input>` with a `<label>` (use `sr-only` class if the label should be visually hidden)
 
+## KV Key Naming Conventions
+
+Currently, the only KV data type is todo lists. The key is the raw nanoid from the URL (e.g., `V1StGXR8_Z5jdHi6B-myT`), with no prefix.
+
+If you add new data types to the same KV namespace, use a prefix convention to avoid collisions:
+
+- `todo:<nanoid>` — todo lists (would require migrating existing keys)
+- `user:<id>` — user data
+- `meta:<nanoid>` — list metadata (name, owner, etc.)
+
+Alternatively, use a separate KV namespace for each data type (add a new binding in `wrangler.json`). This is cleaner but requires `cf-typegen` and adds a binding.
+
+The current flat-key approach works because nanoid output won't collide with any reasonable prefix. But if you add keys like `"settings"` or `"config"`, they could theoretically collide with a nanoid — use prefixed keys from the start for non-list data.
+
+## Preferred Patterns for Common Gaps
+
+### Form Data Validation Helper
+
+Replace the `as string` casts in the action handler with this pattern:
+
+```ts
+function getRequiredString(formData: FormData, key: string): string {
+  const value = formData.get(key);
+  if (typeof value !== "string" || !value.trim()) {
+    throw Response.json({ error: `Missing ${key}` }, { status: 400 });
+  }
+  return value.trim();
+}
+```
+
+Usage in the action:
+```ts
+case "toggle": {
+  const id = getRequiredString(formData, "id");
+  await todoManager.toggle(id);
+  return { success: true };
+}
+```
+
+### ErrorBoundary Template
+
+Add this to `app/routes/$id.tsx` (and optionally `app/root.tsx`) to handle errors gracefully:
+
+```tsx
+import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
+        <div className="max-w-md mx-auto text-center">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-4">
+            {error.status}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">{error.statusText}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
+      <div className="max-w-md mx-auto text-center">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-4">
+          Something went wrong
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Please try refreshing the page.
+        </p>
+      </div>
+    </div>
+  );
+}
+```
+
+### Optimistic UI with useFetcher
+
+When adding loading states or optimistic updates, prefer `useFetcher` over `<Form>`:
+
+```tsx
+import { useFetcher } from "@remix-run/react";
+
+function TodoItem({ todo }: { todo: Todo }) {
+  const fetcher = useFetcher();
+  const isToggling = fetcher.state !== "idle";
+  const optimisticCompleted = isToggling ? !todo.completed : todo.completed;
+
+  return (
+    <fetcher.Form method="post">
+      <input type="hidden" name="id" value={todo.id} />
+      <button
+        type="submit"
+        name="intent"
+        value="toggle"
+        disabled={isToggling}
+        className={optimisticCompleted ? "line-through text-gray-400" : ""}
+      >
+        {todo.text}
+      </button>
+    </fetcher.Form>
+  );
+}
+```
+
+This gives instant visual feedback while the mutation runs in the background. Each `useFetcher` is independent — toggling one todo doesn't block interacting with others.
+
 ## Known Technical Debt
 
 - **`as string` casts in action handler** (`$id.tsx:35,41`): The `toggle` and `delete` cases cast `formData.get("id")` with `as string` instead of validating. Should use type guards like the `create` case does.
@@ -320,6 +484,16 @@ These APIs are accessible in loaders, actions, and `server.ts` via the Worker ru
 - **`crypto.randomUUID()`** — Available globally in the Worker runtime. Used by `TodoManager` for todo IDs.
 - **`crypto.subtle`** — Web Crypto API for hashing, signing, encryption. Available if needed.
 - **`navigator.userAgent`** — Not available in Workers. Use `request.headers.get("user-agent")` instead (as `entry.server.tsx` does via `isbot`).
+
+## Wrangler Compatibility Date
+
+The `compatibility_date` in `wrangler.json` (currently `"2024-11-01"`) controls which Cloudflare Workers runtime features and behaviors are available. It acts as a version lock for the runtime API:
+
+- **When to bump**: When you need a feature introduced after the current date, or when Cloudflare recommends updating for security fixes.
+- **How to bump**: Change the date string in `wrangler.json` to a more recent date (e.g., `"2025-06-01"`). Test locally with `npm run dev` and in preview with `npm run preview` before deploying.
+- **Risk**: Bumping the date may change runtime behavior. Cloudflare documents breaking changes per compatibility date. Always test after bumping.
+- **Interaction with `nodejs_compat`**: The `nodejs_compat` flag in `compatibility_flags` enables Node.js built-in module support (e.g., `node:buffer`, `node:crypto`). Some Node.js APIs only become available at certain compatibility dates.
+- **In tests**: `vitest.config.ts` reads `compatibilityDate` and `compatibilityFlags` from `wrangler.json`, so tests always match the production runtime configuration.
 
 ## Dependency Upgrade Guide
 
@@ -443,6 +617,30 @@ Notes:
 - **TodoManager errors**: `toggle()` throws if the todo ID is not found. This error is not caught in the action — it will bubble up to the Worker-level catch and return 500.
 - **Missing pattern**: There is no `ErrorBoundary` export in `$id.tsx` or `root.tsx`. Adding one would provide a better user experience for errors.
 
+## Worker Bundle Analysis
+
+To inspect the Worker bundle size and contents:
+
+```bash
+npx wrangler deploy --dry-run --outdir dist
+ls -lh dist/
+```
+
+This builds the production bundle without deploying. Check the output file size against limits:
+- **Free plan**: 1MB compressed
+- **Paid plan**: 10MB compressed
+
+To see what's contributing to bundle size:
+```bash
+npx wrangler deploy --dry-run --outdir dist 2>&1 | grep -i size
+```
+
+Common size concerns:
+- Remix + React is the bulk of the bundle (~200-400KB compressed)
+- Adding large npm packages (e.g., date-fns, lodash) can push past limits — prefer lightweight alternatives or tree-shakeable imports
+- The `nanoid` package is tiny (~130 bytes) and not a concern
+- Source maps are uploaded separately (`upload_source_maps: true`) and don't count toward the limit
+
 ## Performance Characteristics
 
 - **Worker CPU limit**: 10ms CPU time on the free plan, 30ms on paid. KV reads/writes are I/O and don't count against CPU time.
@@ -472,6 +670,93 @@ Notes:
 - **KV contents**: Use `npx wrangler kv key list --binding TO_DO_LIST` to list keys, and `npx wrangler kv key get --binding TO_DO_LIST "<key>"` to read a value.
 - **Request tracing**: `wrangler.json` has `"observability": { "enabled": true }` — this enables Workers Analytics and logging in the Cloudflare dashboard.
 - **Vite dev errors**: Remix errors in dev mode show a full stack trace overlay in the browser. Production errors are caught by `server.ts` and return a generic 500.
+
+## Observability & Analytics
+
+### What `observability.enabled` Provides
+
+The `"observability": { "enabled": true }` setting in `wrangler.json` enables:
+
+- **Workers Analytics** in the Cloudflare dashboard: request count, error rate, CPU time, and latency percentiles
+- **Log collection**: `console.log`/`console.error` output is captured and viewable in the dashboard (not just via `wrangler tail`)
+- **Invocation-level tracing**: each request gets a trace with timing breakdowns
+
+### Adding Custom Analytics
+
+Use `ctx.waitUntil` to fire analytics events without blocking the response:
+
+```ts
+// In a loader or action:
+context.cloudflare.ctx.waitUntil(
+  (async () => {
+    const cf = request.cf;
+    console.log(JSON.stringify({
+      event: "todo_created",
+      listId: params.id,
+      country: cf?.country,
+      timestamp: Date.now(),
+    }));
+  })()
+);
+```
+
+`waitUntil` keeps the Worker alive after the response is sent. Use it for:
+- Logging and analytics (as above)
+- Non-critical KV writes (e.g., incrementing a view counter)
+- Sending events to an external analytics service
+
+Do NOT use `waitUntil` for writes that the user expects to see on the next page load — those must complete before the response.
+
+## KV Namespace Management
+
+### Current Setup
+
+The `TO_DO_LIST` binding in `wrangler.json` points to a single KV namespace used for all environments. The namespace ID (`36361a26931e4058839f0962a01fc275`) is the production namespace.
+
+### Adding Preview/Staging Namespaces
+
+To isolate data per environment, create separate namespaces and use wrangler environments:
+
+```bash
+npx wrangler kv namespace create TO_DO_LIST --preview
+```
+
+Then in `wrangler.json`:
+```json
+{
+  "kv_namespaces": [
+    {
+      "binding": "TO_DO_LIST",
+      "id": "36361a26931e4058839f0962a01fc275",
+      "preview_id": "<preview-namespace-id>"
+    }
+  ]
+}
+```
+
+The `preview_id` is used by `wrangler dev` and `wrangler preview`. The `id` is used by `wrangler deploy`.
+
+### Wrangler Environments
+
+For full staging/production separation:
+```json
+{
+  "env": {
+    "staging": {
+      "kv_namespaces": [
+        {
+          "binding": "TO_DO_LIST",
+          "id": "<staging-namespace-id>"
+        }
+      ]
+    }
+  }
+}
+```
+
+Deploy to staging: `npx wrangler deploy --env staging`
+
+After adding environments, run `npm run cf-typegen` — the `Env` interface doesn't change (bindings are the same), but it validates the config.
 
 ## Environment Variables & Secrets
 
