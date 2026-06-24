@@ -140,6 +140,19 @@ If you skip step 2, TypeScript will not know about new bindings and `tsc` will f
   - `my-route_.tsx` — escapes the layout (trailing underscore)
 - **Test files**: Mirror the source file name with `.test.ts` suffix in `test/` directory
 
+### Tailwind CSS Conventions
+
+The app uses a constrained set of Tailwind patterns:
+
+- **Layout**: `min-h-screen`, `max-w-md mx-auto`, `flex`, `gap-2`
+- **Spacing**: `py-8 px-4`, `p-4`, `mb-8` — standard Tailwind scale, no custom values
+- **Colors**: Gray scale for backgrounds/text (`gray-100`/`gray-800` light, `gray-900`/`white` dark), `blue-500`/`blue-600` for primary actions, `red-500`/`red-700` for destructive actions
+- **Interactive states**: `hover:bg-blue-600`, `hover:text-red-700` — always provide hover states on buttons
+- **Dark mode**: Every color class needs a `dark:` counterpart. Background: `bg-gray-100 dark:bg-gray-900`. Text: `text-gray-800 dark:text-white`. Inputs: `dark:bg-gray-800 dark:border-gray-700 dark:text-white`
+- **Typography**: Inter font via Google Fonts (configured in `root.tsx` links and `tailwind.config.ts`). No custom font sizes — use Tailwind's default scale (`text-3xl`, etc.)
+- **Components**: `rounded-lg` for all rounded elements, `shadow` / `shadow-sm` for elevation
+- **No `@apply`** in component styles — all styling is inline via className
+
 ### The Intent Pattern
 
 The `$id.tsx` route multiplexes all mutations through a single `action` using an `intent` form field:
@@ -160,6 +173,247 @@ Supported via Tailwind's `dark:` variant (system preference via `prefers-color-s
 - Test files go in `test/` and must match `test/**/*.test.ts`.
 - Business logic tests use `TodoManager` directly against the miniflare KV binding.
 - Import test env via `import { env } from "cloudflare:test"` — this is a virtual module, not an npm package.
+
+## Walkthrough: Adding a New Feature to TodoManager
+
+Example: adding an "edit todo text" feature end-to-end.
+
+**1. Add the method to `app/to-do-manager.ts`:**
+```ts
+async edit(id: string, newText: string): Promise<Todo> {
+  const todos = await this.list();
+  const todoIndex = todos.findIndex((todo) => todo.id === id);
+  if (todoIndex === -1) throw new Error(`Todo with id ${id} not found`);
+  todos[todoIndex].text = newText;
+  await this.kv.put(this.todosKey, JSON.stringify(todos), { expirationTtl: 300 });
+  return todos[todoIndex];
+}
+```
+
+**2. Add tests in `test/to-do-manager.test.ts`:**
+```ts
+describe("edit()", () => {
+  it("updates todo text", async () => {
+    const todo = await manager.create("Original");
+    const edited = await manager.edit(todo.id, "Updated");
+    expect(edited.text).toBe("Updated");
+    const stored = await manager.list();
+    expect(stored[0].text).toBe("Updated");
+  });
+});
+```
+
+**3. Add the action case in `app/routes/$id.tsx`:**
+```ts
+case "edit": {
+  const id = formData.get("id");
+  const text = formData.get("text");
+  if (typeof id !== "string" || typeof text !== "string" || !text)
+    return Response.json({ error: "Invalid input" }, { status: 400 });
+  await todoManager.edit(id, text);
+  return { success: true };
+}
+```
+
+**4. Add the UI form in the component** (inside the todo `<li>`):
+```tsx
+<Form method="post">
+  <input type="hidden" name="id" value={todo.id} />
+  <input type="text" name="text" defaultValue={todo.text} />
+  <button type="submit" name="intent" value="edit">Save</button>
+</Form>
+```
+
+**5. Run the full check:**
+```bash
+npm run lint && npm run typecheck && npx vitest run test/to-do-manager.test.ts
+```
+
+## Accessibility (a11y) Notes
+
+### Current State
+
+The app has accessibility gaps that should be addressed when modifying UI:
+
+- Toggle buttons use the todo text as the only button content but have no `aria-label` describing the action (e.g., "Mark 'Buy groceries' as complete")
+- Delete buttons have no confirmation step — destructive action is immediate
+- No visible focus indicators beyond browser defaults
+- No `aria-live` region to announce todo state changes (created, toggled, deleted)
+- No skip navigation link
+- Form input has `placeholder` but no associated `<label>` element
+
+### Guidelines for New UI
+
+- Add `aria-label` to icon-only or ambiguous buttons
+- Use semantic HTML (`<main>`, `<nav>`, `<section>`) when adding layout structure
+- Ensure all interactive elements are keyboard-accessible and have visible focus styles (e.g., `focus:ring-2 focus:ring-blue-500 focus:outline-none`)
+- Test with keyboard-only navigation (Tab, Enter, Escape)
+- Use `aria-live="polite"` for dynamic content updates that should be announced to screen readers
+- Pair every `<input>` with a `<label>` (use `sr-only` class if the label should be visually hidden)
+
+## Known Technical Debt
+
+- **`as string` casts in action handler** (`$id.tsx:35,41`): The `toggle` and `delete` cases cast `formData.get("id")` with `as string` instead of validating. Should use type guards like the `create` case does.
+- **No `ErrorBoundary`**: Neither `$id.tsx` nor `root.tsx` exports an `ErrorBoundary`. Unhandled errors fall through to the generic 500 in `server.ts`.
+- **No loading/pending UI**: Form submissions cause a full round-trip with no visual feedback. Should use `useNavigation()` or `useFetcher()` for optimistic updates and loading states.
+- **No empty state**: When a list has no todos, the UI shows nothing — no message, no illustration.
+- **`toggle()` throws on missing ID**: If a todo is deleted between render and toggle click (race condition), the user gets a 500 error instead of a graceful message.
+- **No input length limit**: Todo text has no max length. Extremely long strings could cause KV write issues or UI overflow.
+- **Sorting on every read**: `list()` sorts by `createdAt` on every call. With large lists, this adds CPU overhead. Could sort on write instead.
+
+## Route Testing Gaps
+
+Currently only `TodoManager` is unit-tested. Loader and action functions in `$id.tsx` are untested. To add route tests:
+
+**Loader test pattern** — create a mock context and call the loader directly:
+```ts
+import { loader } from "../app/routes/$id";
+
+it("returns todos for a given list ID", async () => {
+  // Seed KV with test data
+  await env.TO_DO_LIST.put("test-list", JSON.stringify([
+    { id: "1", text: "Test", completed: false, createdAt: Date.now() }
+  ]), { expirationTtl: 300 });
+
+  const response = await loader({
+    params: { id: "test-list" },
+    context: { cloudflare: { env } },
+    request: new Request("http://localhost/test-list"),
+  } as any);
+
+  expect(response.todos).toHaveLength(1);
+});
+```
+
+**Action test pattern** — construct a FormData request:
+```ts
+import { action } from "../app/routes/$id";
+
+it("creates a todo via action", async () => {
+  const formData = new FormData();
+  formData.set("intent", "create");
+  formData.set("text", "New todo");
+
+  await action({
+    params: { id: "test-list" },
+    context: { cloudflare: { env } },
+    request: new Request("http://localhost/test-list", {
+      method: "POST",
+      body: formData,
+    }),
+  } as any);
+
+  const stored = await env.TO_DO_LIST.get("test-list", "json");
+  expect(stored).toHaveLength(1);
+});
+```
+
+Note: Route tests require the `as any` cast because the full `LoaderFunctionArgs`/`ActionFunctionArgs` types expect properties we don't need in tests. This is a pragmatic trade-off.
+
+## Cloudflare Runtime APIs Available
+
+These APIs are accessible in loaders, actions, and `server.ts` via the Worker runtime:
+
+- **`request.cf`** — Geolocation and connection info: `country`, `city`, `timezone`, `tlsVersion`, `httpProtocol`, etc. Useful for localization or analytics. May be `undefined` in local dev.
+- **`ctx.waitUntil(promise)`** — Run background work after the response is sent. Available via `context.cloudflare.ctx.waitUntil()`. Use for logging, analytics, or non-critical writes.
+- **`caches`** — The Cache API. Available via `context.cloudflare.caches`. Can cache KV responses or computed data at the edge. Note: `caches.default` is Cloudflare-specific.
+- **`crypto.randomUUID()`** — Available globally in the Worker runtime. Used by `TodoManager` for todo IDs.
+- **`crypto.subtle`** — Web Crypto API for hashing, signing, encryption. Available if needed.
+- **`navigator.userAgent`** — Not available in Workers. Use `request.headers.get("user-agent")` instead (as `entry.server.tsx` does via `isbot`).
+
+## Dependency Upgrade Guide
+
+### Remix (`@remix-run/*` packages)
+
+All Remix packages must be on the same version. Update together:
+```bash
+npm install @remix-run/cloudflare@latest @remix-run/react@latest @remix-run/dev@latest @remix-run/server-runtime@latest
+```
+After upgrading: check for new future flags in the Remix changelog. When upgrading to v3, remove the `future` flags from `vite.config.ts` and the `Future` module augmentation.
+
+### Wrangler
+
+```bash
+npm install wrangler@latest @cloudflare/workers-types@latest
+```
+After upgrading: run `npm run cf-typegen` to regenerate types with the new wrangler version. Check for compatibility date changes.
+
+### Vitest + Cloudflare pool
+
+These must be compatible versions:
+```bash
+npm install vitest@latest @cloudflare/vitest-pool-workers@latest
+```
+After upgrading: run `npm run test` immediately — the Cloudflare pool has strict vitest version requirements and will error on mismatch.
+
+### Tailwind CSS
+
+```bash
+npm install tailwindcss@latest autoprefixer@latest
+```
+Tailwind v4 is a major rewrite (CSS-first config). If upgrading to v4, `tailwind.config.ts` and `postcss.config.js` need significant changes. Stay on v3 unless you're ready for that migration.
+
+### General tips
+
+- Run `npm run lint && npm run typecheck && npm run test` after every dependency upgrade
+- Check the `compatibility_date` in `wrangler.json` — some Worker features require a recent date
+- Pin exact versions for Cloudflare packages if you encounter compatibility issues
+
+## CI/CD Recommendations
+
+No CI is currently configured. A recommended GitHub Actions setup:
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test -- --run
+      - run: npm run build
+```
+
+Notes:
+- `npm run test -- --run` runs vitest in single-run mode (no watch)
+- The Cloudflare vitest pool works in GitHub Actions without additional setup
+- Add `npm run deploy` to a separate deploy job gated on the `main` branch if you want continuous deployment
+- Consider adding `npx wrangler deploy --dry-run` to PRs to catch deploy config issues early
+
+## Browser Compatibility
+
+- **Target**: ES2022 (set in `tsconfig.json` `compilerOptions.target`)
+- **React 18**: Requires browsers with ES2015+ support. React 18 hydration uses `hydrateRoot` with `StrictMode`.
+- **Tailwind CSS 3.4**: Generates modern CSS. No IE11 support. All evergreen browsers are supported.
+- **No polyfills**: The app ships no polyfills. If you need to support older browsers, add them via Vite's `build.target` option.
+- **CSS features used**: `prefers-color-scheme` (dark mode), flexbox, CSS grid (if added). All have >95% browser support.
+- **JavaScript features**: Optional chaining, nullish coalescing, `crypto.randomUUID()` (client-side; supported in all modern browsers since 2021).
+
+## Quick Reference Links
+
+- **Cloudflare KV**: https://developers.cloudflare.com/kv/
+- **Cloudflare Workers**: https://developers.cloudflare.com/workers/
+- **Wrangler CLI**: https://developers.cloudflare.com/workers/wrangler/
+- **Remix v2 Docs**: https://remix.run/docs/en/main
+- **Remix Flat File Routing**: https://remix.run/docs/en/main/file-conventions/routes
+- **Remix Cloudflare Guide**: https://remix.run/docs/en/main/guides/cloudflare
+- **Tailwind CSS**: https://tailwindcss.com/docs
+- **Vitest**: https://vitest.dev/
+- **Cloudflare Vitest Pool**: https://developers.cloudflare.com/workers/testing/vitest-integration/
 
 ## Key Dependencies
 
