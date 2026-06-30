@@ -7,5 +7,5 @@ export const loader = () => {
 };
 
 export default function Index() {
-  return <div>'Whatever you put here will not be shown'</div>;
+  return <div>&apos;Whatever you put here will not be shown&apos;</div>;
 }

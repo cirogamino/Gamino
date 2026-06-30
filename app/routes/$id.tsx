@@ -48,7 +48,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   }
 }
 
-export default function () {
+export default function TodoList() {
   const { todos } = useLoaderData<typeof loader>();
 
   return (
