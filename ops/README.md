@@ -31,6 +31,7 @@ remove the pasting entirely once a run has produced a real result.
 | `prompts/` | One self-contained super prompt per AI. Paste as-is. |
 | `board/` | The shared table: LEDGER, STANDUP, BLOCKERS, DECISIONS, `board.json`. |
 | `office.html` | The floor — isometric office, war room for shared work, desks for own-lane work. Click a station to open its screen, task, history, and a send-work box. |
+| `office-vision.md` | Where the floor is going: photoreal, fixed-camera, live monitors. The locked target spec and the phased path to it. |
 | `dashboard.html` | The same data as a compact numbers board. |
 
 ## How the office knows what everyone is doing
