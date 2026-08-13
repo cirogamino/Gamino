@@ -390,6 +390,191 @@ One codebase, multiple trades and metros driven by config. Build it once.
 
 ---
 
+## 11. Devil's advocate — where the validation machine breaks
+
+The "let lead flow decide the trade" idea is the best thing in this plan, and it has seven
+holes. Here they are in the order they'll actually bite, with the fix for each.
+
+### Hole 1 — The signal arrives six months after you need the decision *(fatal)*
+
+Organic takes 4–8 months to produce meaningful volume. Your runway is shorter than that.
+So you'll take whatever work walks in and end up in a trade **by accident, not by data** —
+which is precisely the failure the idea was invented to prevent. The measurement period is
+longer than the decision window. Everything else on this list is survivable; this one kills
+the whole concept.
+
+**Fix: buy the signal instead of earning it.** Run $30–50/day of Google Search Ads per
+trade for 2–3 weeks. Useful volume in **14–21 days instead of 6 months**, for ~$1,500–2,000
+across three trades. And the paid data is *better* data — it gives you cost per lead at a
+known spend, which is the input to unit economics. **Paid is the speedometer; SEO is the
+engine.** Run both, decide on paid.
+
+### Hole 2 — Call volume is the wrong metric, and it will pick the wrong trade
+
+Epoxy generates piles of tire-kicker calls ("what's a garage run?"). Waterproofing generates
+few calls, each from someone with a flooded basement and real urgency. Count *calls* and
+epoxy wins by a mile. Count *dollars* and waterproofing may win by 5x.
+
+**Fix:** the metric is **gross profit per $100 of ad spend**, never call count. That means
+tracking five numbers per trade — clicks → calls → quotes given → jobs closed → gross
+profit. You have to actually quote and close, not just count rings.
+
+### Hole 3 — You can't close what you can't quote
+
+The machine assumes leads convert. A lead you can't price, schedule, or fulfill converts at
+roughly zero — and you'll misread the result as *"waterproofing doesn't work in my market"*
+when the truth is *"I don't know how to quote waterproofing."* You'll have paid to learn
+about yourself instead of the market.
+
+**Fix: no subcontractor, no ads for that trade. Hard gate.** The sub hands you a price
+sheet, the price sheet lets you quote in the driveway, and quoting in the driveway is what
+closes home-services jobs. Line up the sub *before* the test, not after.
+
+### Hole 4 — Seasonality will lie to you, and right now it's lying loudly
+
+It is mid-August. Epoxy is indoor and reads roughly normal year-round. Concrete is at or
+past peak season, so it reads high. Waterproofing spikes with heavy rain and spring thaw, so
+it reads **artificially low right now**. A three-week test this month could easily tell you
+"epoxy wins" when all you measured was the calendar.
+
+**Fix:** name the bias before you read the results — discount concrete, weight waterproofing
+up, and re-test waterproofing after the first hard fall rain. More important: **never kill a
+trade on one three-week window.** Kill it on unit economics (CPL vs. profit per job), which
+is far less seasonal than raw volume.
+
+### Hole 5 — Three sites at once is three ways to do it badly
+
+Three trades in month one means three mediocre sites and three half-built profiles while
+focused competitors beat you on all three. Worse, **three separate Google Business Profiles
+at one address will trip Google's guidelines**, and a suspension is permanent damage to the
+exact asset you're building.
+
+**Fix:** test with **three landing pages + paid ads** — which need no GBP at all. That's
+precisely why the test is paid. Build **one** real SEO site and **one** GBP, for the winner.
+The guideline risk disappears entirely.
+
+### Hole 6 — The winner might be a trade you can't staff or won't run
+
+Data says waterproofing. Then you find no excavation sub will partner with you, insurance
+quotes at $8k/yr, or you simply don't want to spend five years in muddy holes. You've
+validated your way into a business you won't actually operate.
+
+**Fix: a feasibility gate before the test.** A trade only enters the test if you can
+(a) find two willing subs, (b) get insurance quoted, and (c) genuinely stomach doing it for
+five years. **Validate among acceptable options, not all options.**
+
+### Hole 7 — You'll optimize for the wrong time horizon *(the sneaky one)*
+
+Lead flow measures **current demand**. It says nothing about competitive density,
+defensibility, or ceiling. Epoxy is cheap to enter — which means in three years your market
+has forty epoxy guys racing to the bottom. Waterproofing keeps its margins *because* it's
+hard to enter.
+
+> **The trade that's easiest for you to enter is the trade that's easiest for your future
+> competitors to enter.**
+
+**Fix:** weight the decision — roughly **50% test unit economics, 30% barrier to entry,
+20% your own willingness**. And remember the sequence in §3b already accounts for this:
+epoxy is explicitly a *cash phase*, not a destination. The test decides which trade you're
+in **this year**, not forever.
+
+---
+
+## 12. Five more ideas
+
+**1. Treat cost-per-lead as the actual product.** When you know epoxy CPL is $65 and
+waterproofing CPL is $180 at 4x the profit per job, you know more than 90% of the
+contractors in your market — including the ones you'd sell leads to. That number prices your
+lead business, prices your ad budget, and is the single most valuable thing the test
+produces.
+
+**2. Sell the quote, not the job — become the fastest estimator in the market.** Most
+contractors say "I'll get back to you in a few days." Build a mobile quoting tool with your
+sub's price sheet baked in: measurements in → price, contract, and deposit link out, signed
+in the driveway. This is small software, it's squarely your skill, and it's a real edge in a
+trade where everyone else is slow.
+
+**3. Speed-to-lead automation is the cheapest moat you'll ever build.** Lead hits → SMS to
+your phone → automatic text to the customer inside 60 seconds ("This is Ciro, saw your
+request about the garage floor — calling you in 5 minutes"). Contact rates fall off a cliff
+after the first few minutes. A day of work, permanent advantage.
+
+**4. Harvest the losers instead of shutting them off.** The two trades that lose the test
+still have live pages and live leads. That's your lead-sale revenue ($500–1,500/mo), it
+keeps market data flowing so you can re-enter later on evidence, and it's a free early
+warning when demand shifts.
+
+**5. Fix the reviews problem before you spend a dollar on ads.** Zero reviews makes every
+ad dollar work harder for nothing, and reviews gate both GBP ranking and close rate. Do 3–5
+jobs at cost — family, neighbors, anyone — purely to bank five reviews with photos *first*.
+
+> **Bonus, and it's free money: pick your metro by competition, not by where you sleep.**
+> If you'll drive 45 minutes, a suburb with 3 competitors is worth ten of a city with 60.
+> Check the map pack in six surrounding towns before you commit to a service area.
+
+---
+
+## 13. The 24-hour launch
+
+**Definition of "up and running" in 24 hours:** live pages, live demand, a fulfillment path,
+and a scoreboard. **Not** a construction company. Be clear about that or you'll feel like
+you failed at 11pm.
+
+**The bottleneck is not the website — it's the subcontractor.** You can have leads by
+tomorrow afternoon for free. What you cannot conjure overnight is someone to fulfill them.
+So the phone comes before the keyboard.
+
+### Move 1 (Hours 0–3, business hours) — 20 phone calls before you write a line of code
+
+Call epoxy, concrete, and waterproofing contractors in your market. The pitch is short and
+it works because it's true:
+
+> *"I generate leads and close jobs — I don't install. I'll bring you work at a fixed price,
+> you do the install, I handle the customer and the paperwork. Want to talk?"*
+
+**Goal: two subs per trade, each with a price sheet.** This is the gate from Hole 3. Nothing
+else on this list matters if this fails, which is exactly why it goes first.
+
+### Move 2 (Hours 0–1, parallel) — bind the paperwork
+
+- LLC filing online (same-day in many states)
+- EIN — instant and free at IRS.gov, weekday business hours
+- **General liability bound online same-day** (Next, Thimble, Hiscox and similar)
+
+Don't wait on any of this to start marketing — but **do not set foot on a customer's
+property without GL in hand.**
+
+### Move 3 (Hours 3–8) — ship three landing pages, not three sites
+
+One page per trade. Above the fold: offer, phone number, form, six photos (ask your sub for
+theirs), an honest price range, "free quote today." Deploy on this repo's Workers stack.
+A distinct call-tracking number per page — without it the whole test is unmeasurable.
+
+### Move 4 (Hours 8–12) — turn on demand that doesn't take six months
+
+- **Facebook Marketplace** — free, one listing per trade, renew daily. Genuinely produces
+  same-day home-services leads. This is your fastest path to a real phone call.
+- **Nextdoor** business page + a post in your own neighborhood
+- **Google Search Ads**, $30/day/trade — usually live the same day
+- **Do not plan around Local Services Ads.** LSA requires license and insurance
+  verification plus a background check — that's days to weeks. Great channel, wrong timeline.
+  Regular Search Ads today, LSA in the background.
+
+### Move 5 (Hours 12–24) — build the scoreboard and the speed-to-lead loop
+
+- One sheet, six columns per trade: **spend, clicks, calls, quotes, closed, gross profit.**
+  This is the machine from §11 Hole 2. If it doesn't exist, you're running on vibes again.
+- The 60-second auto-text from §12 idea 3.
+- Then start quoting.
+
+**And set the rule now, tonight, while you're clear-headed:**
+
+> **No equipment purchases for 30 days, no matter how good day 3 looks.**
+
+Day-3 enthusiasm is the single most expensive emotion in this business.
+
+---
+
 ## Appendix — open questions
 
 - What state / metro? Changes licensing, comp rates, and search competitiveness materially.
