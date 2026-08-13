@@ -103,6 +103,8 @@ SEAT:        <your seat name>
 CYCLE:       <run id + hour, e.g. RUN-01 / H07>
 STATUS:      GREEN | YELLOW | RED
 NOW:         <the single thing you are doing right now>
+PLACE:       ROOM | DESK  <ROOM if this task is shared or cross-lane, DESK if own-lane>
+ARTIFACT:    <link or path to what is on your screen right now, or NONE>
 DONE:        <what you finished + EVIDENCE (url/path/id)>
 NEXT:        <the very next action, one line>
 NEED:        <what you need from a named seat, or NONE>
@@ -115,6 +117,22 @@ Status definitions — no interpretation allowed:
 - **GREEN** — on plan, no help needed.
 - **YELLOW** — will miss target without a change; you have a proposed fix.
 - **RED** — blocked or failing; you need the table this cycle.
+
+`PLACE` and `ARTIFACT` drive the office floor (`ops/office.html`):
+
+- **`PLACE: ROOM`** — this task is shared or cross-lane: a boardroom round, a
+  challenge review, a joint deliverable. You are drawn in the war room.
+- **`PLACE: DESK`** — own-lane work. You are drawn at your desk.
+- **`ARTIFACT`** — the link or path to what you are producing *right now*. This is
+  literally what shows on your monitor on the floor. `NONE` is an honest answer;
+  a stale link is not.
+
+**Idle is not the same as silent, and the floor draws them differently.** A seat
+with nothing assigned reports `STATUS: IDLE` and is drawn feet-up — that's an
+honest empty queue and it means the Chair has work to hand out. A seat that
+simply stops posting goes to `NO SIGNAL` after 90 minutes and is drawn as an
+empty chair with a dark screen. Never report idle to cover a stall; the two
+states send opposite instructions to whoever is watching the floor.
 
 ---
 

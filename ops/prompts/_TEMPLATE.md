@@ -62,6 +62,8 @@ SEAT:        <seat>
 CYCLE:       <run + hour>
 STATUS:      GREEN | YELLOW | RED
 NOW:         <the one thing you are doing>
+PLACE:       ROOM | DESK  <ROOM if this task is shared or cross-lane, DESK if own-lane>
+ARTIFACT:    <link or path to what is on your screen right now, or NONE>
 DONE:        <finished + EVIDENCE>
 NEXT:        <very next action>
 NEED:        <from a named seat, or NONE>

@@ -29,8 +29,27 @@ remove the pasting entirely once a run has produced a real result.
 | `02-MEETING-PROTOCOL.md` | How to actually run the meeting. Exact copy-paste blocks. |
 | `03-24HOUR-RUN.md` | The autonomy test: pre-departure checklist, hour map, hard gates, kill criteria. |
 | `prompts/` | One self-contained super prompt per AI. Paste as-is. |
-| `board/` | The shared table: LEDGER, STANDUP, BLOCKERS, DECISIONS. |
-| `dashboard.html` | The floor plan — every seat, status, and what it's doing, at a glance. |
+| `board/` | The shared table: LEDGER, STANDUP, BLOCKERS, DECISIONS, `board.json`. |
+| `office.html` | The floor — isometric office, war room for shared work, desks for own-lane work. Click a station to open its screen, task, history, and a send-work box. |
+| `dashboard.html` | The same data as a compact numbers board. |
+
+## How the office knows what everyone is doing
+
+Each seat's Report Block carries `PLACE` (`ROOM` or `DESK`) and `ARTIFACT` (what
+is literally on its screen). Those two fields drive the floor.
+
+Trust is shown, never assumed. A desk marked **LIVE** posts its own status —
+today that's Claude Code and the browser agent. A desk marked **RELAY** is only
+as current as its last relayed block, and the age sits on the card.
+
+And the floor draws two kinds of not-working differently, because they mean
+opposite things:
+
+- **Feet up** — the seat reported an empty queue. It wants work. Hand it some.
+- **Empty chair, dark screen** — no report inside the staleness window. We don't
+  know what it's doing. That's a question, not a rest.
+
+Collapsing those two is how an accountability tool starts lying to you.
 
 ## Start here
 
