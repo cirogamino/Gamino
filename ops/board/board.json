@@ -1,0 +1,140 @@
+{
+  "run": {
+    "id": "RUN-01",
+    "status": "not_started",
+    "hour": 0,
+    "spendCap": null,
+    "spendToDate": 0,
+    "grossRevenue": 0,
+    "liveUrl": null,
+    "checkoutLink": null,
+    "ideaFreeze": false,
+    "moneyGateCleared": false
+  },
+  "seats": [
+    {
+      "id": "chair",
+      "seat": "CHAIR / BUILD",
+      "ai": "Claude Code",
+      "lane": "Repo, deploys, the record",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "product"
+    },
+    {
+      "id": "product",
+      "seat": "PRODUCT",
+      "ai": "ChatGPT",
+      "lane": "Offer, pricing, copy, checkout",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "chair"
+    },
+    {
+      "id": "research",
+      "seat": "RESEARCH",
+      "ai": "Gemini",
+      "lane": "Demand evidence, competitors",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "verify"
+    },
+    {
+      "id": "distribution",
+      "seat": "DISTRIBUTION",
+      "ai": "Grok",
+      "lane": "Hooks, launch, reach",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "verify"
+    },
+    {
+      "id": "verify",
+      "seat": "VERIFY",
+      "ai": "Perplexity",
+      "lane": "Fact desk, claim veto",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "research"
+    },
+    {
+      "id": "ops",
+      "seat": "OPS",
+      "ai": "Copilot",
+      "lane": "Unit economics, SOPs, support",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "chair"
+    },
+    {
+      "id": "engineering",
+      "seat": "ENGINEERING",
+      "ai": "DeepSeek",
+      "lane": "Code review, QA, automation",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "chair"
+    },
+    {
+      "id": "community",
+      "seat": "COMMUNITY",
+      "ai": "Meta AI / Llama",
+      "lane": "IG/FB, replies, audience",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "distribution"
+    },
+    {
+      "id": "volume",
+      "seat": "VOLUME",
+      "ai": "Mistral",
+      "lane": "Bulk assets, variants, localization",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "product"
+    },
+    {
+      "id": "execution",
+      "seat": "EXECUTION",
+      "ai": "Manus / browser agent",
+      "lane": "Listings, uploads, the test purchase",
+      "status": "idle",
+      "now": null,
+      "lastUpdate": null,
+      "confidence": null,
+      "blocked": null,
+      "challenger": "ops"
+    }
+  ],
+  "_schema": {
+    "status": "idle | working | yellow | red | done",
+    "note": "Phase 2: serve this from GET /board on the Worker so any seat with browsing can read the whole table at the start of every response, and seats with tools can POST their Report Block. See ops/02-MEETING-PROTOCOL.md."
+  }
+}

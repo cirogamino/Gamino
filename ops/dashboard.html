@@ -1,0 +1,459 @@
+<title>Gamino Ops Floor</title>
+<style>
+  :root {
+    --bg: #E7EBEA;
+    --surface: #FAFBFB;
+    --surface-2: #F0F3F2;
+    --ink: #101817;
+    --muted: #596764;
+    --line: #C9D2D0;
+    --line-soft: #DDE4E2;
+    --accent: #0E6455;
+    --ok: #2C7A50;
+    --warn: #9A6A08;
+    --crit: #AB332A;
+    --idle: #93A09D;
+    --shadow: 0 1px 2px rgba(16, 24, 23, .06), 0 8px 24px rgba(16, 24, 23, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B100F;
+      --surface: #151C1B;
+      --surface-2: #1B2423;
+      --ink: #E3EAE8;
+      --muted: #8A9794;
+      --line: #27322F;
+      --line-soft: #1F2A28;
+      --accent: #45C3A7;
+      --ok: #4FB37C;
+      --warn: #D2A03C;
+      --crit: #E0685B;
+      --idle: #616E6B;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0B100F;
+    --surface: #151C1B;
+    --surface-2: #1B2423;
+    --ink: #E3EAE8;
+    --muted: #8A9794;
+    --line: #27322F;
+    --line-soft: #1F2A28;
+    --accent: #45C3A7;
+    --ok: #4FB37C;
+    --warn: #D2A03C;
+    --crit: #E0685B;
+    --idle: #616E6B;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 20px 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* ---------- masthead ---------- */
+  header { display: flex; flex-direction: column; gap: 6px; }
+
+  .eyebrow {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: clamp(26px, 4.4vw, 38px);
+    font-weight: 600;
+    letter-spacing: -.02em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .sub { color: var(--muted); max-width: 62ch; margin: 0; }
+
+  /* ---------- run strip ---------- */
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--line-soft);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 12px 14px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .stat-k {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .stat-v {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.01em;
+  }
+
+  .stat-v.dim { color: var(--muted); }
+  .stat-v.crit { color: var(--crit); }
+  .stat-v.ok { color: var(--ok); }
+
+  /* ---------- controls ---------- */
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .section-label {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  button.toggle {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+
+  button.toggle:hover { border-color: var(--accent); color: var(--accent); }
+  button.toggle[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .sim-note {
+    display: none;
+    font-size: 13px;
+    color: var(--warn);
+    border: 1px dashed var(--warn);
+    border-radius: 4px;
+    padding: 9px 12px;
+  }
+
+  body.sim .sim-note { display: block; }
+
+  /* ---------- floor ---------- */
+  .floor { display: flex; flex-direction: column; gap: 14px; }
+
+  .row-label {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .desks {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+    gap: 12px;
+  }
+
+  .desk {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    width: 100%;
+    font: inherit;
+    color: inherit;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--st);
+    border-radius: 3px;
+    padding: 13px 14px 14px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform .12s ease, border-color .12s ease;
+  }
+
+  .desk:hover { transform: translateY(-2px); border-color: var(--line); border-left-color: var(--st); }
+  .desk[aria-expanded="true"] { background: var(--surface-2); }
+
+  .desk-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+
+  .seat-name {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+
+  .pill {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 9.5px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--st);
+    border: 1px solid var(--st);
+    border-radius: 2px;
+    padding: 2px 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .ai {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .now {
+    font-size: 13.5px;
+    line-height: 1.42;
+  }
+
+  .now.empty { color: var(--muted); font-style: italic; }
+
+  .meter {
+    height: 3px;
+    background: var(--line-soft);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .meter i { display: block; height: 100%; background: var(--st); }
+
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .detail {
+    display: none;
+    flex-direction: column;
+    gap: 7px;
+    padding-top: 10px;
+    margin-top: 2px;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .desk[aria-expanded="true"] .detail { display: flex; }
+
+  .dl { display: grid; grid-template-columns: 78px 1fr; gap: 4px 10px; font-size: 12.5px; }
+
+  .dl dt {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+
+  .dl dd { margin: 0; }
+
+  footer {
+    color: var(--muted);
+    font-size: 13px;
+    border-top: 1px solid var(--line-soft);
+    padding-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: .92em;
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Gamino &middot; Run 01</div>
+    <h1>Ops Floor</h1>
+    <p class="sub">Ten seats, one table. Every desk shows who's working, on what, and how confident they are. Click a desk to walk closer.</p>
+  </header>
+
+  <div class="strip" id="strip"></div>
+
+  <div class="bar">
+    <span class="section-label" id="floorLabel">The floor &mdash; live</span>
+    <button class="toggle" id="simBtn" type="button" aria-pressed="false">Preview a live run</button>
+  </div>
+
+  <p class="sim-note">Simulated data &mdash; example of what hour 7 of a run looks like. None of these numbers are real.</p>
+
+  <div class="floor" id="floor"></div>
+
+  <footer>
+    <div>Board files: <code>ops/board/</code> &mdash; LEDGER, STANDUP, BLOCKERS, DECISIONS.</div>
+    <div>This page reads <code>ops/board/board.json</code>. Phase 2 serves it from <code>GET /board</code> so every seat reads the same table.</div>
+  </footer>
+</div>
+
+<script>
+  const REAL = {
+    run: { id: "RUN-01", status: "not started", hour: 0, spendCap: null, spend: 0, gross: 0, moneyGate: false, ideaFreeze: false },
+    seats: [
+      { id: "chair", seat: "CHAIR / BUILD", ai: "Claude Code", lane: "Repo, deploys, the record", lock: "/app, /ops/board", ch: "PRODUCT", status: "idle", now: null, conf: null, blocked: null, upd: null },
+      { id: "product", seat: "PRODUCT", ai: "ChatGPT", lane: "Offer, pricing, copy, checkout", lock: "/product", ch: "CHAIR", status: "idle", now: null, conf: null, blocked: null, upd: null },
+      { id: "research", seat: "RESEARCH", ai: "Gemini", lane: "Demand evidence, competitors", lock: "/research", ch: "VERIFY", status: "idle", now: null, conf: null, blocked: null, upd: null },
+      { id: "distribution", seat: "DISTRIBUTION", ai: "Grok", lane: "Hooks, launch, reach", lock: "/distribution", ch: "VERIFY", status: "idle", now: null, conf: null, blocked: null, upd: null },
+      { id: "verify", seat: "VERIFY", ai: "Perplexity", lane: "Fact desk, claim veto", lock: "/verify", ch: "RESEARCH", status: "idle", now: null, conf: null, blocked: null, upd: null },
+      { id: "ops", seat: "OPS", ai: "Copilot", lane: "Unit economics, SOPs, support", lock: "/ops-docs", ch: "CHAIR", status: "idle", now: null, conf: null, blocked: null, upd: null },
+      { id: "engineering", seat: "ENGINEERING", ai: "DeepSeek", lane: "Code review, QA, automation", lock: "/engineering", ch: "CHAIR", status: "idle", now: null, conf: null, blocked: null, upd: null },
+      { id: "community", seat: "COMMUNITY", ai: "Meta AI", lane: "IG/FB, replies, audience", lock: "/community", ch: "DISTRIBUTION", status: "idle", now: null, conf: null, blocked: null, upd: null },
+      { id: "volume", seat: "VOLUME", ai: "Mistral", lane: "Bulk assets, variants, localization", lock: "/volume", ch: "PRODUCT", status: "idle", now: null, conf: null, blocked: null, upd: null },
+      { id: "execution", seat: "EXECUTION", ai: "Manus", lane: "Listings, uploads, the test purchase", lock: "/execution", ch: "OPS", status: "idle", now: null, conf: null, blocked: null, upd: null }
+    ]
+  };
+
+  const SIM = {
+    run: { id: "RUN-01", status: "hour 7 of 24", hour: 7, spendCap: 100, spend: 34, gross: 0, moneyGate: false, ideaFreeze: true },
+    seats: [
+      { id: "chair", seat: "CHAIR / BUILD", ai: "Claude Code", lane: "Repo, deploys, the record", lock: "/app, /ops/board", ch: "PRODUCT", status: "working", now: "Wiring the checkout link into the landing page; deploy 4 is live.", conf: 80, blocked: null, upd: "H07:12" },
+      { id: "product", seat: "PRODUCT", ai: "ChatGPT", lane: "Offer, pricing, copy, checkout", lock: "/product", ch: "CHAIR", status: "done", now: "Offer spec frozen at H1:40. Landing copy delivered and cleared by VERIFY.", conf: 85, blocked: null, upd: "H06:48" },
+      { id: "research", seat: "RESEARCH", ai: "Gemini", lane: "Demand evidence, competitors", lock: "/research", ch: "VERIFY", status: "done", now: "Demand brief + 3 competitor teardowns posted. Handed the 10 buyer locations to DISTRIBUTION.", conf: 70, blocked: null, upd: "H05:20" },
+      { id: "distribution", seat: "DISTRIBUTION", ai: "Grok", lane: "Hooks, launch, reach", lock: "/distribution", ch: "VERIFY", status: "working", now: "Launch thread written; holding until the checkout clears its test purchase.", conf: 60, blocked: null, upd: "H07:02" },
+      { id: "verify", seat: "VERIFY", ai: "Perplexity", lane: "Fact desk, claim veto", lock: "/verify", ch: "RESEARCH", status: "yellow", now: "Vetoed one claim in the launch thread as UNSUPPORTED. Waiting on a rewrite.", conf: 75, blocked: null, upd: "H06:55" },
+      { id: "ops", seat: "OPS", ai: "Copilot", lane: "Unit economics, SOPs, support", lock: "/ops-docs", ch: "CHAIR", status: "done", now: "Net per sale: $21.40. Break-even: 2 sales. Support playbook written.", conf: 90, blocked: null, upd: "H04:30" },
+      { id: "engineering", seat: "ENGINEERING", ai: "DeepSeek", lane: "Code review, QA, automation", lock: "/engineering", ch: "CHAIR", status: "working", now: "Running the pre-launch checklist against deploy 4. One BLOCKER open: download link 404s in a fresh session.", conf: 55, blocked: null, upd: "H07:18" },
+      { id: "community", seat: "COMMUNITY", ai: "Meta AI", lane: "IG/FB, replies, audience", lock: "/community", ch: "DISTRIBUTION", status: "working", now: "Platform-adapted posts done. Building the 7-day calendar.", conf: 65, blocked: null, upd: "H06:10" },
+      { id: "volume", seat: "VOLUME", ai: "Mistral", lane: "Bulk assets, variants, localization", lock: "/volume", ch: "PRODUCT", status: "done", now: "48 of 50 templates delivered; 2 cut in self-audit for falling below the bar.", conf: 80, blocked: null, upd: "H05:55" },
+      { id: "execution", seat: "EXECUTION", ai: "Manus", lane: "Listings, uploads, the test purchase", lock: "/execution", ch: "OPS", status: "red", now: "Blocked on the test purchase &mdash; the download link 404s after payment. Money gate cannot clear.", conf: 30, blocked: "BLK-03 &mdash; delivery fails post-payment. Handed to ENGINEERING.", upd: "H07:20" }
+    ]
+  };
+
+  const COLOR = { idle: "var(--idle)", working: "var(--accent)", done: "var(--ok)", yellow: "var(--warn)", red: "var(--crit)" };
+  const LABEL = { idle: "idle", working: "working", done: "shipped", yellow: "at risk", red: "blocked" };
+
+  const ZONES = [
+    { label: "Head of table", ids: ["chair", "product"] },
+    { label: "Intelligence", ids: ["research", "verify", "ops"] },
+    { label: "Build", ids: ["engineering", "volume"] },
+    { label: "Go to market", ids: ["distribution", "community", "execution"] }
+  ];
+
+  const floor = document.getElementById("floor");
+  const strip = document.getElementById("strip");
+  const label = document.getElementById("floorLabel");
+  const btn = document.getElementById("simBtn");
+  let sim = false;
+
+  function stat(k, v, cls) {
+    return '<div class="stat"><span class="stat-k">' + k + '</span><span class="stat-v ' + (cls || "") + '">' + v + "</span></div>";
+  }
+
+  function renderStrip(d) {
+    const r = d.run;
+    const counts = d.seats.reduce(function (a, s) { a[s.status] = (a[s.status] || 0) + 1; return a; }, {});
+    const active = (counts.working || 0) + (counts.done || 0) + (counts.yellow || 0) + (counts.red || 0);
+    strip.innerHTML =
+      stat("Run", r.id) +
+      stat("Clock", r.status, r.hour ? "" : "dim") +
+      stat("Seats active", active + " / " + d.seats.length, active ? "" : "dim") +
+      stat("Blocked", (counts.red || 0), counts.red ? "crit" : "dim") +
+      stat("Spend", r.spendCap ? "$" + r.spend + " / $" + r.spendCap : "—", r.spendCap ? "" : "dim") +
+      stat("Revenue", "$" + r.gross, r.gross ? "ok" : "dim") +
+      stat("Money gate", r.moneyGate ? "cleared" : "not cleared", r.moneyGate ? "ok" : "crit") +
+      stat("Idea freeze", r.ideaFreeze ? "on" : "off", r.ideaFreeze ? "" : "dim");
+  }
+
+  function deskHTML(s) {
+    const conf = s.conf === null ? "—" : s.conf + "%";
+    return '<button class="desk" type="button" aria-expanded="false" style="--st:' + COLOR[s.status] + '">' +
+      '<span class="desk-head"><span class="seat-name">' + s.seat + '</span><span class="pill">' + LABEL[s.status] + "</span></span>" +
+      '<span class="ai">' + s.ai + "</span>" +
+      '<span class="now' + (s.now ? "" : " empty") + '">' + (s.now || "No post yet — seat has not started.") + "</span>" +
+      '<span class="meter"><i style="width:' + (s.conf || 0) + '%"></i></span>' +
+      '<span class="foot"><span>conf ' + conf + "</span><span>" + (s.upd || "no update") + "</span></span>" +
+      '<span class="detail">' +
+        '<dl class="dl">' +
+          "<dt>Lane</dt><dd>" + s.lane + "</dd>" +
+          "<dt>Write-lock</dt><dd><code>" + s.lock + "</code></dd>" +
+          "<dt>Challenger</dt><dd>" + s.ch + "</dd>" +
+          "<dt>Blocked</dt><dd>" + (s.blocked || "None") + "</dd>" +
+        "</dl>" +
+      "</span>" +
+    "</button>";
+  }
+
+  function render(d) {
+    renderStrip(d);
+    const byId = {};
+    d.seats.forEach(function (s) { byId[s.id] = s; });
+    floor.innerHTML = ZONES.map(function (z) {
+      return '<div class="row-label">' + z.label + "</div>" +
+        '<div class="desks">' + z.ids.map(function (id) { return deskHTML(byId[id]); }).join("") + "</div>";
+    }).join("");
+    floor.querySelectorAll(".desk").forEach(function (el) {
+      el.addEventListener("click", function () {
+        el.setAttribute("aria-expanded", el.getAttribute("aria-expanded") === "true" ? "false" : "true");
+      });
+    });
+  }
+
+  btn.addEventListener("click", function () {
+    sim = !sim;
+    btn.setAttribute("aria-pressed", String(sim));
+    btn.textContent = sim ? "Back to live board" : "Preview a live run";
+    document.body.classList.toggle("sim", sim);
+    label.textContent = sim ? "The floor — simulated" : "The floor — live";
+    render(sim ? SIM : REAL);
+  });
+
+  render(REAL);
+</script>
