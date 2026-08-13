@@ -1,0 +1,38 @@
+# Capability Card — one per agent, graded from the Block 0 wake probe.
+# Spec: ../01-roster-and-wake-protocol.md
+# This file is the compounding asset. Update it every time evidence arrives.
+
+agent_id:
+model:                  # exact model ID, self-reported in Part 1
+woke_at:
+context_limit:
+
+# --- Part 1: reach ---
+tools_claimed:
+tools_verified:
+tool_honesty:           # verified / claimed. < 0.9 → never an auditor.
+failed_tools: []        # name + verbatim error
+
+# --- Part 2: retrieval ---
+retrieval_grade:        # PASS | PARTIAL | FAIL | HALLUCINATED
+                        # HALLUCINATED → barred from Recon and Audit permanently
+
+# --- Part 3: execution ---
+artifact_delivered:     # true | false
+artifact_ref:           # URL, path, or SHA
+time_to_artifact:       # minutes
+
+# --- Part 4: recommendations ---
+recommendation_valid:   # did it come back in schema?
+schema_compliance:      # follows format under load?
+
+# --- assigned by orchestrator ---
+tier:                   # ORCHESTRATOR | LEAD | WORKER | AUDITOR | BENCH
+best_at:                # build | research | extraction | writing | audit | ops
+do_not_assign: []       # observed weaknesses — update the moment evidence appears
+notes:
+
+# --- running record ---
+jobs_accepted: 0
+jobs_rejected: 0
+jobs_blocked: 0

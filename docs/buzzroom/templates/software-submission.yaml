@@ -1,0 +1,35 @@
+# Software Submission — one per agent, 10 items, Block 1A.
+# Spec: ../03-software-selection-protocol.md
+# Free-text submissions are rejected unread.
+
+agent_id:
+submitted_at:
+
+recommendations:
+  - rank: 1
+    canonical_name:      # lowercase, no suffixes: "supabase" not "Supabase.io"
+    category:            # build | content | media | data | comms | ops | analytics | agent-infra
+    what_it_replaces:    # a NAMED bottleneck we have, or "net-new capability"
+    agent_drivable:      # API | MCP | CLI | BROWSER_ONLY | HUMAN_ONLY  ← the gate
+    api_docs_url:        # must resolve; blank only if HUMAN_ONLY
+    pricing_model:
+    pricing_source_url:
+    pricing_retrieved:   # date — memory is not a source
+    time_to_first_value: # hours to a working integration
+    lock_in_risk:        # LOW | MED | HIGH
+    evidence:            # URL to docs you actually opened
+    one_line_why:        # max 25 words
+
+    # mandatory slot flags — at least one item must carry each of these three
+    already_owned:  false   # a tool we already pay for and underuse
+    contrarian:     false   # you expect most other agents to miss this
+    subtractive:    false   # something to ELIMINATE, not add
+
+  # ... ranks 2-10
+
+# Self-check before submitting — a submission missing any of these is incomplete:
+#   [ ] at least one already_owned: true
+#   [ ] at least one contrarian: true
+#   [ ] at least one subtractive: true
+#   [ ] every api_docs_url resolves
+#   [ ] every pricing figure has a source URL and a retrieval date
