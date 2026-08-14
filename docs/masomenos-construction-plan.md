@@ -1,8 +1,12 @@
 # Masomenos Construction Co. — Build Plan
 
-**Status:** working draft, v1
+**Status:** working draft, v2
 **Author:** Ciro
 **Horizon:** 0 → 36 months, service trades → spec homes
+
+> **Read §14 first.** Handymen + mini splits now enter as rung 2, ahead of epoxy. That
+> revision supersedes the rung table in §0 and the trade sequence in §3b. Everything else
+> stands.
 
 ---
 
@@ -575,9 +579,174 @@ Day-3 enthusiasm is the single most expensive emotion in this business.
 
 ---
 
+## 14. Revision 2 — Handymen first
+
+> **Supersedes:** the rung table in §0 and the trade sequence in §3b. Everything else in
+> this document stands as written.
+>
+> **Stated assumption:** "the convenient real estate business" reads as *handyman crews
+> serving real estate accounts* — property managers, landlords, and realtors, doing
+> turnovers, make-readies, punch lists, and repairs. If you actually mean an existing real
+> estate company of your own, the plan below still holds; only the positioning changes.
+> Flagged in the appendix.
+
+### 14.1 This is a better rung 2 than epoxy, and here's why
+
+Handymen displace epoxy as the entry point. Not because handyman work is more profitable —
+it's dramatically less profitable per job — but because it does **three jobs at once** that
+epoxy only does one of:
+
+| Job | Epoxy | Handyman + mini splits |
+|---|---|---|
+| Cash flow | Month 2, after $10–18k of equipment | **Week 1, on hand tools** |
+| Talent pipeline (rung 4) | None | **Built in — you're auditing crew leads on live work** |
+| Customer acquisition for high-ticket trades | None. Every job is a cold stranger. | **The whole point — see below** |
+
+That third row is the strategic unlock and it's worth being explicit about:
+
+> A property manager who trusts your handyman is the person who later hands you an $18k
+> waterproofing job **without a bid war and at zero acquisition cost.** Lead gen brings cold
+> strangers. Real estate accounts bring warm, repeat, high-ticket work.
+
+Handyman work isn't a detour from the ladder. It's the rung that makes rungs 3 and 4 cheaper.
+
+### 14.2 The trade you're accepting
+
+Be clear-eyed: handyman work is **the opposite of your $5–15k/job target.** Tickets are
+$200–800. It's a $75–125/hr business — high volume, low ticket, dispatch-heavy. What kills
+handyman companies is that the owner becomes a full-time dispatcher and the coordination
+overhead eats the margin.
+
+You are trading *margin per job* for *relationship and repeat volume.* That's a good trade
+here, because the relationship is what you actually want. But run it knowing that the
+handyman line will never hit your profit target on its own — **the high-ticket trades sold
+into those accounts are what hit it.**
+
+### 14.3 The correction: don't run mini splits sequentially
+
+Your plan was generalists focused on mini splits for the first couple of months, then
+broadening. Flip it — **run both from week one.**
+
+- Two months of nothing but mini splits turns a generalist into a specialist, which is the
+  exact outcome you said you didn't want. Good generalists also get bored and leave.
+- More practically: you will not have enough mini split volume in month one to keep anyone
+  busy full-time. You'll be paying for idle hours.
+
+The right split:
+
+> **Mini splits are the marketing hook and the margin. General handyman work is the schedule
+> filler and the relationship.** Market the mini splits loudly because they're high-ticket
+> and people actually search for them; fill the gaps with handyman work so utilization never
+> drops.
+
+Mini split economics, roughly: single-zone installed $3.5–6k, equipment $700–1,500,
+one day, two people → **$1.2–2.5k profit.** Multi-zone runs $8–15k installed → **$3–6k
+profit**, which finally touches your target range. Multi-zone is where to push.
+
+### 14.4 The licensing trap — read before you hire anyone
+
+**Mini splits are not handyman work in most jurisdictions.** This is the thing most likely
+to hurt you, and it hits around week three when the first permit or inspection comes up.
+
+- **EPA Section 608 certification** is federally required to open a refrigerant circuit or
+  buy regulated refrigerant. Type II covers typical mini split equipment.
+- **HVAC contractor licensing** is required for installs in many states, and varies enormously
+  — some states regulate at state level, some locally, a few barely at all.
+- **The electrical is separate.** A dedicated circuit and disconnect commonly needs a licensed
+  electrician and a permit.
+- **Manufacturer warranties frequently require a licensed installer.** An unlicensed install
+  can void the warranty on equipment you sold the customer — that's your problem, not theirs.
+- **The legitimate path around 608:** pre-charged DIY-style systems (MRCOOL DIY and similar)
+  use quick-connect linesets, so no refrigerant circuit is opened and no 608 is needed. Widely
+  used by handyman-adjacent installers. **The electrical and permit obligations don't go away.**
+
+**The uninsurable scenario:** an electrical fire traced to a mini split circuit installed
+without the required licence. General liability policies exclude work requiring a license you
+didn't hold. You'd be uncovered on a six-figure claim.
+
+**Action, before hiring:** confirm your state's HVAC licensing threshold, decide
+pre-charged-DIY vs. licensed install, and if it's licensed, either get certified yourself or
+put a licensed HVAC contractor on the team from day one. This is a gate, not a to-do.
+
+### 14.5 The hardest part is the hire, not the work
+
+*"A handyman that can do everything"* is the single hardest hire in the trades, for a reason
+worth understanding:
+
+> The best generalists already run their own businesses — because they can. The barrier is a
+> van and a phone. **You are competing for the exact person who least needs an employer.**
+
+So don't compete on wage. Compete on what they cannot get alone:
+
+- Steady volume — no marketing, ever
+- No collections, no invoicing, no chasing customers
+- Materials fronted
+- A real path: crew lead → profit share → running a division
+
+That list *is* your retention strategy, and it's also why the ones who join will stay.
+
+**Where they actually are:**
+
+1. **Ask your property managers who they already use.** They know every handyman in the
+   market and exactly which ones show up. This is the best source by a wide margin and it
+   costs one phone call.
+2. Tradesmen in their 50s–60s who are done running a business but not done working. Gold.
+3. Guys inside big HVAC/plumbing companies who hate the corporate structure.
+4. Job boards and Facebook groups — high volume, low quality. Last resort.
+
+**Pay math:** a good generalist runs $25–40/hr W-2. Loaded cost with payroll taxes and
+workers' comp is roughly 1.3–1.5×. Bill at **2.5–3× the wage** to be healthy — a $30/hr guy
+bills at $75–90/hr. Anything under 2.5× and you're buying yourself a job.
+
+And note what you've just built: employees, workers' comp, and a comp policy. **§4's labor
+hub is now half-constructed** — you got there through the front door instead of the side.
+
+### 14.6 The revised ladder
+
+| Rung | Business | Timing | Role |
+|---|---|---|---|
+| 1 | Lead gen | Month 0 | Demand engine |
+| 2 | **Handymen + mini splits → real estate accounts** | **Month 0–2** | **Cash, talent, and warm access to rung 3** |
+| 3 | High-ticket trades (epoxy, concrete, waterproofing) | Month 6–30 | Margin — sold *into* rung 2's accounts |
+| 4 | Labor hub | Month 12+ | Half-built by rung 2 already |
+| 5 | Masomenos Construction | Year 3+ | The end state |
+
+### 14.7 What this does to the validation machine (§11)
+
+It makes it cheaper and better. The paid-ads test is no longer deciding *which trade to
+start* — it's deciding **which high-ticket trade to upsell into accounts you already have.**
+
+Which means the fastest test isn't ads at all:
+
+> **Ask your property managers what they keep needing and can't get done well.** Ten phone
+> calls, zero dollars, and the answer comes from people who will actually buy. Run the paid
+> test after that to size the wider market — not to make the decision.
+
+That's a strictly better first move than $1,500 of ads, and it only exists because rung 2
+gave you customers to ask.
+
+### 14.8 What this does to the 24-hour launch (§13)
+
+Move 1 changes. The 20 calls are no longer only to subcontractors:
+
+- **10 calls to property managers and realtors.** Pitch: *"I'm building a handyman crew for
+  turnovers and make-readies, plus mini split installs. What do you keep needing that you
+  can't get done?"* This finds both your first customer and your first hire.
+- **10 calls to find handymen** — starting with the names those property managers give you.
+
+And one expectation to reset: **hiring is now on the critical path, and hiring is slow.**
+Finding a true generalist takes weeks, not a day. The 24-hour version is: job ad posted,
+property managers called, licensing question answered. Not a crew standing in your driveway.
+
+---
+
 ## Appendix — open questions
 
 - What state / metro? Changes licensing, comp rates, and search competitiveness materially.
+  With mini splits in scope this is now the highest-priority unknown — see §14.4.
+- **"The convenient real estate business" — is this an existing real estate company of
+  yours, or the real estate accounts the handyman crew will serve?** §14 assumes the
+  latter. The plan holds either way; the positioning changes.
 - What's the actual starting capital available?
 - Do you have any existing trade relationships to lean on for §3a?
 - Full-time on this, or alongside something else? Changes the timeline more than anything
