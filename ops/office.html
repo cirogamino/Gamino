@@ -676,6 +676,54 @@
   document.getElementById("scrim").addEventListener("click", closeDrawer);
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeDrawer(); });
 
+  /* ---------------- live board ---------------- */
+
+  /* When this page is served from the Worker, /board/json is the real table and
+     replaces the embedded data. When it is opened standalone — as a published
+     artifact, or straight off disk — the fetch fails and the embedded board
+     stands. Either way the page says which one you are looking at, because a
+     floor that silently shows stale data is the failure this whole system is
+     built to avoid. */
+  function ago(ms) {
+    const m = Math.floor(ms / 60000);
+    if (m < 1) return "just now";
+    if (m < 60) return m + "m ago";
+    const h = Math.floor(m / 60);
+    return h < 48 ? h + "h ago" : Math.floor(h / 24) + "d ago";
+  }
+
+  function adopt(payload) {
+    const now = Date.now();
+    const live = {};
+    payload.seats.forEach(function (s) {
+      live[s.id] = {
+        status: s.status,
+        place: s.place,
+        task: s.task,
+        artifact: s.artifact,
+        conf: s.conf,
+        blocked: s.blocked,
+        upd: s.updatedAt ? ago(now - s.updatedAt) : null,
+        history: (s.history || []).map(function (h) { return { t: h.t, i: h.i, e: h.e }; })
+      };
+    });
+    return { run: payload.run, live: live };
+  }
+
+  function loadLive() {
+    if (sim) return;
+    fetch("/board/json", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error(r.status)); })
+      .then(function (payload) {
+        if (sim) return;
+        label.textContent = "Floor — live board";
+        render(adopt(payload));
+      })
+      .catch(function () {
+        label.textContent = "Floor — standalone (no board connected)";
+      });
+  }
+
   simBtn.addEventListener("click", function () {
     sim = !sim;
     simBtn.setAttribute("aria-pressed", String(sim));
@@ -683,9 +731,11 @@
     document.body.classList.toggle("sim", sim);
     label.textContent = sim ? "Floor — simulated" : "Floor — live";
     closeDrawer();
-    render(sim ? SIM : REAL);
+    if (sim) { render(SIM); } else { render(REAL); loadLive(); }
   });
 
   render(REAL);
+  loadLive();
+  setInterval(loadLive, 30000);
 })();
 </script>

@@ -10,7 +10,7 @@ export default defineWorkersConfig({
         miniflare: {
           compatibilityFlags: wranglerConfig.compatibility_flags,
           compatibilityDate: wranglerConfig.compatibility_date,
-          kvNamespaces: ["TO_DO_LIST"],
+          kvNamespaces: ["TO_DO_LIST", "BOARD"],
         },
       },
     },

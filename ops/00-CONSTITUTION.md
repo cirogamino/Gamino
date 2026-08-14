@@ -101,7 +101,7 @@ Every response you produce as a seat holder ends with exactly this, filled in:
 ```
 SEAT:        <your seat name>
 CYCLE:       <run id + hour, e.g. RUN-01 / H07>
-STATUS:      GREEN | YELLOW | RED
+STATUS:      GREEN | SHIPPED | YELLOW | RED | IDLE
 NOW:         <the single thing you are doing right now>
 PLACE:       ROOM | DESK  <ROOM if this task is shared or cross-lane, DESK if own-lane>
 ARTIFACT:    <link or path to what is on your screen right now, or NONE>
@@ -114,9 +114,15 @@ KILL SIGNAL: <what would make you declare this dead, or NONE YET>
 ```
 
 Status definitions — no interpretation allowed:
-- **GREEN** — on plan, no help needed.
+- **GREEN** — working, on plan, no help needed.
+- **SHIPPED** — artifact delivered, with evidence.
 - **YELLOW** — will miss target without a change; you have a proposed fix.
 - **RED** — blocked or failing; you need the table this cycle.
+- **IDLE** — nothing assigned; you are asking for work.
+
+`NO SIGNAL` is not on that list because no seat may claim it. It is computed from
+silence — 90 minutes without a post — and a seat reporting it would be reporting
+that it isn't reporting.
 
 `PLACE` and `ARTIFACT` drive the office floor (`ops/office.html`):
 

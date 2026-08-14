@@ -132,20 +132,20 @@ seats resolving a fire beats ten seats discussing it.
 
 ---
 
-## Phase 2 — making it live (removing you entirely)
+## Making it live — now shipped as V2a
 
-Everything above still routes through your clipboard. To remove that:
+The rounds above still route through your clipboard. The standup relay no longer
+has to — **see `ops/04-LIVE-BOARD.md`.**
 
-1. **Shared board over HTTP.** This repo is a Cloudflare Worker. Add `GET
-   /board` returning the current state as plain text, and `POST /board` writing a
-   seat's Report Block with a per-seat key. Scaffolded at `ops/board/board.json`.
-2. **Read for free, today.** Any seat with browsing (ChatGPT, Gemini, Grok,
-   Perplexity, Copilot, Manus) can be told to fetch `/board` at the start of every
-   response. That alone gets you *shared awareness* with zero pasting.
-3. **Write via the seats that have tools.** Manus and Claude Code can POST
-   directly. Everyone else returns a block you or a scheduled job relays.
-4. **The bus.** Once read+write works for 3+ seats, they are genuinely talking to
-   each other, and the boardroom runs on a cron instead of on you.
+- `GET /board` serves the whole table as plain text. Any seat with browsing
+  (ChatGPT, Gemini, Grok, Perplexity, Copilot, Manus) reads it at the start of
+  every response. That is shared awareness with zero pasting, and every seat
+  prompt already carries the instruction.
+- `POST /board/seat/:seat` lets wired seats record their own status with a
+  per-seat write key. Seats without tools keep ending responses with a Report
+  Block and keep getting relayed — nothing changes for them.
 
-Build Phase 2 only after RUN-01 produces a real result. A message bus with nothing
-to say is a very sophisticated way to avoid shipping.
+**Still yours to route:** the three boardroom rounds. Independent proposals are
+the point of Round 1, so those stay deliberate. Firing them on a schedule is
+later work, and worth doing only after a run has produced a real result — a
+message bus with nothing to say is a very sophisticated way to avoid shipping.
