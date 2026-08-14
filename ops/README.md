@@ -30,7 +30,7 @@ every seat can read before it acts, and lets wired seats post their own status.
 | `01-ROSTER.md` | Which AI holds which seat and why, write-locks, challenger pairs, how to collapse to a smaller team. |
 | `02-MEETING-PROTOCOL.md` | How to actually run the meeting. Exact copy-paste blocks. |
 | `03-24HOUR-RUN.md` | The autonomy test: pre-departure checklist, hour map, hard gates, kill criteria. |
-| `04-LIVE-BOARD.md` | V2a — the board over HTTP. Endpoints, setup, per-seat write keys, how staleness works. |
+| `04-LIVE-BOARD.md` | V2a — the board over HTTP. Endpoints, `npm run board:setup`, per-seat write keys, how staleness works. |
 | `prompts/` | One self-contained super prompt per AI. Paste as-is. |
 | `board/` | The shared table: LEDGER, STANDUP, BLOCKERS, DECISIONS, `board.json`. |
 | `office.html` | The floor — isometric office, war room for shared work, desks for own-lane work. Click a station to open its screen, task, history, and a send-work box. |

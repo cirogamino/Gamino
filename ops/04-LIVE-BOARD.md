@@ -28,29 +28,23 @@ liked, and a floor that can be made to lie is worse than no floor.
 
 ## SETUP
 
-Three commands. Two of them are yours to run — I don't touch the Cloudflare
-account.
-
-**1. Set the master token.** Any long random string.
+One command.
 
 ```
-npx wrangler secret put BOARD_TOKEN
+npm run board:setup
 ```
 
-**2. Print the ten per-seat write keys.**
+It authenticates if needed, builds, deploys, generates the master token, sets it
+as a secret, derives the ten per-seat write keys, writes them to a gitignored
+`.board-keys.txt`, and then fetches the live `/board` to prove it actually
+answers rather than assuming a clean exit meant success.
 
-```
-npm run board:keys -- <the token you just set>
-```
+Nothing is typed in. The token is generated, not chosen.
 
-Keys are derived from the master with SHA-256, never stored. Rotating the master
-revokes all ten at once. Hand each seat only its own key.
-
-**3. Deploy.**
-
-```
-npm run deploy
-```
+The only thing that can require you is the Cloudflare login, and only the first
+time on a given machine — the script opens it, waits, and carries on by itself.
+Deploying publishes to your account under your name, so that step is genuinely
+yours; everything around it isn't.
 
 The board rides on the KV namespace the app already has, under a `board:` key
 prefix — no new namespace, nothing to create. If you'd rather it had its own
@@ -60,6 +54,9 @@ later, `npx wrangler kv namespace create BOARD` and swap the id in
 Once deployed, `/office.html` is served from the same origin as `/board/json`, so
 the floor goes live automatically. Opened standalone it falls back to its
 embedded data and says so in the header — it never silently shows stale numbers.
+
+Re-running the command rotates everything: new master token, new ten keys, all
+previous keys dead.
 
 ---
 
