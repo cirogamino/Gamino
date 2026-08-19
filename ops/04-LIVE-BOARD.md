@@ -28,11 +28,19 @@ liked, and a floor that can be made to lie is worse than no floor.
 
 ## SETUP
 
-One command.
+One command. It works from anywhere — you do not need to be in the repo, and it
+clones the repo if the machine does not have it yet.
 
+```bash
+D=$(find ~ -maxdepth 4 -type d -name Gamino -not -path '*/node_modules/*' 2>/dev/null | head -1); \
+[ -n "$D" ] || { git clone https://github.com/cirogamino/Gamino.git ~/Gamino && D=~/Gamino; }; \
+cd "$D" && git fetch origin && \
+git checkout claude/multi-ai-team-coordination-jl0ecs && \
+git pull origin claude/multi-ai-team-coordination-jl0ecs && \
+npm install && npm run board:setup
 ```
-npm run board:setup
-```
+
+Already sitting in the repo? Then just `npm run board:setup`.
 
 It authenticates if needed, builds, deploys, generates the master token, sets it
 as a secret, derives the ten per-seat write keys, writes them to a gitignored

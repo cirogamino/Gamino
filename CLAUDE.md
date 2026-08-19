@@ -97,6 +97,18 @@ file** rather than leaving the next session to rediscover it.
 - `.board-keys.txt` holds the master token and the ten per-seat keys. Gitignored,
   mode 600. Never commit it, never print the master token into chat.
 
+## What "one command" actually means
+
+A command is not one command until it runs **from a fresh terminal in the home
+directory**. Ciro works on a Mac and opens a shell in `~`. A snippet that
+assumes a working directory, a cloned repo, an installed dependency, or a
+checked-out branch is a multi-step task wearing a disguise, and it will fail on
+the first line.
+
+Before handing over any command: does it work from `~`, on a machine that may
+not have the repo at all? If not, it is not finished — wrap the `cd`, the clone,
+the branch checkout, and the install into the same paste.
+
 ## Working agreements
 
 - Deliver, then report. Don't narrate a plan and stop.
