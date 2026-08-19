@@ -48,7 +48,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "remix vite:build",
+    "build": "npm run sync:office && remix vite:build",
     "cf-typegen": "wrangler types",
     "deploy": "npm run build && wrangler deploy",
     "dev": "remix vite:dev",
@@ -57,7 +57,10 @@
     "start": "wrangler dev",
     "test": "vitest",
     "typecheck": "tsc",
-    "typegen": "wrangler types"
+    "typegen": "wrangler types",
+    "sync:office": "node scripts/sync-office.mjs",
+    "board:keys": "node scripts/board-keys.mjs",
+    "board:setup": "node scripts/setup-board.mjs"
   },
   "sideEffects": false,
   "type": "module"

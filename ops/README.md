@@ -1,0 +1,89 @@
+# GAMINO — the AI operating system
+
+Ten AIs. One table. One offer. No bottleneck.
+
+## What this is
+
+A complete operating system for running a multi-AI team as a business: a shared
+constitution, a seat prompt per AI customized to that model's actual strengths, a
+turn-based boardroom protocol, and a 24-hour autonomy test with real pass/fail
+gates.
+
+## The constraint this is designed around
+
+Separate AI chat windows cannot hear each other. There is no live room. Anything
+promising ten AIs interrupting each other in real time is either running an API
+message bus behind the scenes or it's theater.
+
+So the room here is **written** and the meeting is **turn-based**. You route three
+times — Propose, Challenge, Commit — and then the team executes without you.
+`ops/02-MEETING-PROTOCOL.md` has the exact paste blocks.
+
+Most of the pasting is now gone: `ops/04-LIVE-BOARD.md` puts the table at a URL
+every seat can read before it acts, and lets wired seats post their own status.
+
+## Read in this order
+
+| File | What it's for |
+|---|---|
+| `00-CONSTITUTION.md` | The shared law. Ten Laws, forbidden list, Report Block, boardroom cycle, anti-derail mechanisms, Definition of Done. |
+| `01-ROSTER.md` | Which AI holds which seat and why, write-locks, challenger pairs, how to collapse to a smaller team. |
+| `02-MEETING-PROTOCOL.md` | How to actually run the meeting. Exact copy-paste blocks. |
+| `03-24HOUR-RUN.md` | The autonomy test: pre-departure checklist, hour map, hard gates, kill criteria. |
+| `04-LIVE-BOARD.md` | V2a — the board over HTTP. Endpoints, `npm run board:setup`, per-seat write keys, how staleness works. |
+| `prompts/` | One self-contained super prompt per AI. Paste as-is. |
+| `board/` | The shared table: LEDGER, STANDUP, BLOCKERS, DECISIONS, `board.json`. |
+| `office.html` | The floor — isometric office, war room for shared work, desks for own-lane work. Click a station to open its screen, task, history, and a send-work box. |
+| `office-vision.md` | V1 → V2 → V3. What each version is, what it costs, and where the line between them falls. |
+| `dashboard.html` | The same data as a compact numbers board. |
+
+## How the office knows what everyone is doing
+
+Each seat's Report Block carries `PLACE` (`ROOM` or `DESK`) and `ARTIFACT` (what
+is literally on its screen). Those two fields drive the floor.
+
+Trust is shown, never assumed. A desk marked **LIVE** posts its own status —
+today that's Claude Code and the browser agent. A desk marked **RELAY** is only
+as current as its last relayed block, and the age sits on the card.
+
+And the floor draws two kinds of not-working differently, because they mean
+opposite things:
+
+- **Feet up** — the seat reported an empty queue. It wants work. Hand it some.
+- **Empty chair, dark screen** — no report inside the staleness window. We don't
+  know what it's doing. That's a question, not a rest.
+
+Collapsing those two is how an accountability tool starts lying to you.
+
+## Start here
+
+1. Read `03-24HOUR-RUN.md` and work the **pre-departure checklist**. Most of the
+   run's outcome is decided before the clock starts.
+2. Open one chat per AI. Paste its file from `prompts/`. Confirm each ACKs with a
+   Report Block.
+3. Run Rounds 1–3 from `02-MEETING-PROTOCOL.md`.
+4. Seed `board/LEDGER.md` with the real checkout link, domain, and spend cap.
+5. Start the clock.
+
+## The two ideas that make this work
+
+**Every seat operates as though it's the only AI you have.** Ten AIs that each
+wait for the others produce zero. The Laws forbid deferring, waiting, and
+"someone else should handle this." You get ten full operators, not ten
+contributors to one operator.
+
+**Every seat still owns one lane and answers to one adversary.** That's what stops
+ten full operators from building ten half-products. Own a lane end to end, do
+whatever else is needed when nobody moves, and never ship past your Challenger.
+
+## The thing to actually measure
+
+Not revenue — not on run one. **The blocker log.**
+
+Every entry in `board/BLOCKERS.md` is a place where the world demanded a legal
+human. That list is short, specific, and clearable. Close a few permanently before
+each run and the ceiling rises every time.
+
+The bottleneck was never your thinking speed. It's the handful of doors that only
+open for a person with ID. Run this four times and that list gets very short —
+which is the actual mechanism behind a business that runs while you're on a beach.

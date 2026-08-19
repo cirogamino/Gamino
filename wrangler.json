@@ -7,13 +7,19 @@
   "assets": {
     "directory": "./build/client"
   },
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "observability": {
     "enabled": true
   },
   "kv_namespaces": [
     {
       "binding": "TO_DO_LIST",
+      "id": "36361a26931e4058839f0962a01fc275"
+    },
+    {
+      "binding": "BOARD",
       "id": "36361a26931e4058839f0962a01fc275"
     }
   ]
