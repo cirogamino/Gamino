@@ -1,0 +1,111 @@
+<title>The Buzzroom</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; overflow: hidden; background: #0e0f12; color: #fff;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  #stage { display: block; width: 100vw; height: 100vh; touch-action: none; cursor: grab; }
+  #stage:active { cursor: grabbing; }
+
+  #loading {
+    position: fixed; inset: 0; display: grid; place-items: center;
+    background: #0e0f12; z-index: 50; font-size: 15px; color: #8b8f98;
+  }
+
+  .hud { position: fixed; z-index: 10; }
+
+  #top { top: 0; left: 0; right: 0; padding: 16px 18px; pointer-events: none;
+         background: linear-gradient(#0e0f12dd, transparent); }
+  #top h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: .01em; }
+  #top p { margin: 2px 0 0; font-size: 12px; color: #8b8f98; }
+
+  #left { top: 66px; left: 14px; width: 186px; }
+  .card {
+    background: rgba(20,22,27,.9); border: 1px solid rgba(255,255,255,.09);
+    border-radius: 12px; padding: 8px; backdrop-filter: blur(8px);
+  }
+  .hdr { font-size: 10px; text-transform: uppercase; letter-spacing: .08em;
+         color: #74787f; padding: 4px 6px 8px; }
+  button.r {
+    display: flex; align-items: center; gap: 7px; width: 100%; text-align: left;
+    background: none; border: 0; color: #e8e9ec; font: inherit; font-size: 12.5px;
+    padding: 5px 6px; border-radius: 7px; cursor: pointer;
+  }
+  button.r:hover { background: rgba(255,255,255,.07); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .rn { flex: 1; }
+  .rs { font-size: 10px; color: #6b6f77; }
+  .rs.on { color: #6ee7a8; }
+
+  #right { top: 66px; right: 14px; width: 236px; }
+  .ev { display: flex; gap: 7px; align-items: baseline; font-size: 11.5px;
+        padding: 4px 6px; border-radius: 6px; animation: in .25s ease; }
+  .ev .who { color: #e8e9ec; font-weight: 600; flex: none; }
+  .ev .what { color: #8b8f98; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ev.done .what { color: #6ee7a8; }
+  @keyframes in { from { opacity: 0; transform: translateY(-4px); } }
+  #feed { max-height: 44vh; overflow: hidden; }
+
+  #bottom { bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+  #bottom button {
+    background: rgba(20,22,27,.92); border: 1px solid rgba(255,255,255,.12); color: #fff;
+    font: inherit; font-size: 13px; padding: 9px 15px; border-radius: 10px; cursor: pointer;
+    backdrop-filter: blur(8px);
+  }
+  #bottom button:hover { background: rgba(45,48,56,.95); }
+  #bottom button.go { background: #e2705c; border-color: #e2705c; font-weight: 600; }
+  #bottom button.go:hover { background: #ee8570; }
+  #bottom button.off { opacity: .5; }
+
+  #panel {
+    display: none; position: fixed; z-index: 12; left: 50%; bottom: 74px;
+    transform: translateX(-50%); width: 300px;
+    background: rgba(20,22,27,.95); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 12px; padding: 14px 16px; backdrop-filter: blur(10px);
+  }
+  #panel .x { position: absolute; top: 8px; right: 8px; background: none; border: 0;
+              color: #74787f; font-size: 14px; cursor: pointer; }
+  #panel .pn { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+  #panel .pr { color: #8b8f98; font-size: 12px; margin: 5px 0 10px; }
+  #panel .pk { display: flex; justify-content: space-between; font-size: 12px;
+               color: #8b8f98; padding: 3px 0; }
+  #panel .pk b { color: #fff; font-weight: 600; }
+
+  @media (max-width: 760px) {
+    #left { display: none; }
+    #right { width: 168px; top: 60px; }
+    #top h1 { font-size: 15px; }
+  }
+</style>
+
+<canvas id="stage"></canvas>
+<div id="loading">Building the office…</div>
+
+<div class="hud" id="top">
+  <h1>The Buzzroom</h1>
+  <p>Drag to look around · scroll to zoom · click a desk</p>
+</div>
+
+<div class="hud" id="left">
+  <div class="card">
+    <div class="hdr">The room</div>
+    <div id="roster"></div>
+  </div>
+</div>
+
+<div class="hud" id="right">
+  <div class="card">
+    <div class="hdr">Activity</div>
+    <div id="feed"></div>
+  </div>
+</div>
+
+<div id="panel"></div>
+
+<div class="hud" id="bottom">
+  <button class="go" id="btn-job">Send a job in</button>
+  <button id="btn-auto">Auto: on</button>
+  <button id="btn-wide">Wide shot</button>
+</div>
