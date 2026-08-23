@@ -1,0 +1,174 @@
+<title>Capture Day</title>
+<style>
+  :root{color-scheme:dark;--bg:#0c0d10;--card:#15171c;--line:rgba(255,255,255,.1);
+    --ink:#fff;--ink2:#a7abb4;--ink3:#71757e;--go:#e2705c;--ok:#5fd39a;--warn:#f0b429;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;
+    -webkit-text-size-adjust:100%}
+  .wrap{max-width:720px;margin:0 auto;padding:22px 16px 70px}
+  h1{font-size:25px;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);font-size:14px;margin:0 0 22px}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);
+    margin:30px 0 10px;font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:15px 16px;margin-bottom:11px}
+  .card h3{margin:0 0 3px;font-size:16px}
+  .card p{margin:0;color:var(--ink2);font-size:14px}
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;
+    border-radius:99px;margin-left:7px;vertical-align:2px}
+  .p-go{background:rgba(226,112,92,.19);color:#f0917f}
+  .p-ok{background:rgba(95,211,154,.16);color:var(--ok)}
+  a.ref{display:block;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:14px 16px;margin-bottom:9px;text-decoration:none;color:inherit}
+  a.ref:active{background:#1c1f26}
+  a.ref .u{color:#7fb2f0;font-size:12.5px;word-break:break-all;display:block;margin-top:3px}
+  a.ref .d{color:var(--ink2);font-size:13.5px;margin-top:5px}
+  /* Tap targets sized for a phone held in one hand while the other holds nothing. */
+  label.chk{display:flex;gap:12px;align-items:flex-start;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:8px;
+    cursor:pointer;-webkit-tap-highlight-color:transparent}
+  label.chk input{appearance:none;width:23px;height:23px;flex:none;margin:1px 0 0;
+    border:2px solid #4a4f59;border-radius:6px;position:relative;background:transparent}
+  label.chk input:checked{background:var(--ok);border-color:var(--ok)}
+  label.chk input:checked::after{content:"";position:absolute;left:7px;top:2px;width:6px;
+    height:12px;border:solid #0c0d10;border-width:0 2.5px 2.5px 0;transform:rotate(42deg)}
+  label.chk .t{font-size:15px}
+  label.chk .n{display:block;color:var(--ink2);font-size:13px;margin-top:2px}
+  label.chk:has(input:checked) .t{color:var(--ink3);text-decoration:line-through}
+  .no{border-left:3px solid var(--go)}
+  .num{font-variant-numeric:tabular-nums}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px}
+  td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}
+  td:last-child{text-align:right;color:var(--ink2);white-space:nowrap}
+  tr:first-child td{border-top:0}
+  .big{font-size:20px;font-weight:600}
+  .note{color:var(--ink3);font-size:12.5px;margin-top:8px}
+</style>
+
+<div class="wrap">
+  <h1>Capture Day</h1>
+  <p class="sub">Everything you need to shoot so the real office becomes the 3D office.</p>
+
+  <h2>First — look at these three</h2>
+  <a class="ref" href="https://my-room.pages.dev" target="_blank" rel="noreferrer">
+    <strong>9 · my-room.pages.dev</strong><span class="pill p-ok">verified</span>
+    <span class="u">https://my-room.pages.dev</span>
+    <span class="d">A modeled room with the lighting baked in Blender. This is the ceiling
+    for hand-built 3D — clean, warm, but every object was modeled by a human.</span>
+  </a>
+  <a class="ref" href="https://projects.markkellogg.org/threejs/demo_gaussian_splats_3d.php" target="_blank" rel="noreferrer">
+    <strong>10 · Gaussian splat demo</strong><span class="pill p-go">this one</span>
+    <span class="u">https://projects.markkellogg.org/threejs/demo_gaussian_splats_3d.php</span>
+    <span class="d">A real place, captured with a camera, running in a browser. Nothing here
+    was modeled. This is what your office becomes.</span>
+  </a>
+  <a class="ref" href="https://github.com/brunosimon/my-room-in-3d" target="_blank" rel="noreferrer">
+    <strong>8 · Bruno Simon — my-room-in-3d</strong>
+    <span class="u">https://github.com/brunosimon/my-room-in-3d</span>
+    <span class="d">The repo is real — I checked it. It has no README, so I could not confirm
+    a live demo link; open the repo and use its own link rather than one I guessed.</span>
+  </a>
+
+  <h2>Before you press record</h2>
+  <label class="chk"><input type="checkbox"><span class="t">Lock exposure and focus
+    <span class="n">iPhone: press and hold on a mid-toned wall until AE/AF LOCK appears. This is the
+    single most important setting — auto-exposure flickers between frames and the reconstruction fails.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Turn off HDR, Live Photo, Portrait, and any beauty filter
+    <span class="n">They alter frames differently and confuse the solver.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Turn every light on, open the blinds
+    <span class="n">Soft even light. No hard sunbeam across the floor — harsh shadows get baked
+    in permanently and you can never relight them.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Clean up and then freeze the room
+    <span class="n">Nothing may move between passes. No people, no pets, no swaying blinds.
+    A chair moved halfway through becomes a smear.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Deal with mirrors, TVs and glass
+    <span class="n">Reflections break it. Turn screens off, cover or drape mirrors if you can.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Break up any blank wall
+    <span class="n">A featureless white wall gives the solver nothing to lock onto. Tape up a poster
+    or leave objects against it.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">4K, 60fps, and do not zoom
+    <span class="n">Zooming mid-capture changes the lens and ruins the solve. Walk closer instead.</span></span></label>
+
+  <h2>The passes — inside</h2>
+  <p class="sub" style="margin-bottom:12px">Slow, heel-to-toe. Each frame should overlap its
+  neighbour by <strong>70–80%</strong>. If you feel silly at how slow you're going, it's right.</p>
+
+  <label class="chk"><input type="checkbox"><span class="t">Pass 1 — perimeter at chest height
+    <span class="n">Walk every wall, all the way around, camera aimed slightly inward toward the room.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Pass 2 — perimeter low, about knee height
+    <span class="n">Same loop again, camera angled slightly up.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Pass 3 — perimeter high, arms overhead
+    <span class="n">Same loop, camera angled down. Three heights is what gives it real depth.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Pass 4 — centre orbit
+    <span class="n">Stand where your desk will be. Turn a slow full circle facing outward. This is the
+    exact view you asked for, so shoot it generously.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Pass 5 — every desk and detail
+    <span class="n">Orbit each desk, each piece of furniture, anything with character.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Pass 6 — ceiling and floor
+    <span class="n">Look up, walk it. Look down, walk it. Everyone skips this and the room ends up
+    with a hole in the lid.</span></span></label>
+
+  <h2>The passes — outside</h2>
+  <label class="chk"><input type="checkbox"><span class="t">The Greenfield Avenue front, three heights
+    <span class="n">Low, eye level, and held overhead. Walk the full face of the building.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">The doors with the E, up close
+    <span class="n">Orbit them slowly. This is the establishing shot for the show, so over-shoot it.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Shoot it overcast, or in the hour after sunrise
+    <span class="n">Flat light is best. Midday sun carves black shadows into the model.</span></span></label>
+  <label class="chk"><input type="checkbox"><span class="t">Come back at dusk and shoot it again
+    <span class="n">A second capture with the lights on gives you a night version. Day and night
+    cuts between scenes is the oldest trick in the sitcom book.</span></span></label>
+
+  <h2>How much</h2>
+  <div class="card">
+    <table>
+      <tr><td>Typical room</td><td class="num">200–350 frames</td></tr>
+      <tr><td>Large open space</td><td class="num">400–600 frames</td></tr>
+      <tr><td>Building exterior</td><td class="num">150–250 frames</td></tr>
+      <tr><td>Frame overlap</td><td class="num">70–80%</td></tr>
+    </table>
+    <p class="note">Shooting 4K video and letting the app pull frames is easier than taking
+    hundreds of stills. A slow 3–4 minute walk gives plenty.</p>
+  </div>
+
+  <h2>What kills a capture</h2>
+  <div class="card no">
+    <h3>Moving fast</h3>
+    <p>Motion blur is the number one cause of a mushy result — more than the software you pick.</p>
+  </div>
+  <div class="card no">
+    <h3>Auto-exposure left on</h3>
+    <p>The brightness shifts frame to frame and the solver cannot line the shots up.</p>
+  </div>
+  <div class="card no">
+    <h3>Anything that moved</h3>
+    <p>A person walking through, a door swinging, a screen that changed. Freeze the room.</p>
+  </div>
+
+  <h2>Then send me one file</h2>
+  <div class="card">
+    <p class="big">The .PLY</p>
+    <p>Process the capture in Luma (free — try this first) or Polycam (PLY export needs Pro).
+    Export as <strong>Gaussian Splat → PLY</strong>. That single file is all I need; I'll compress
+    it, build the viewer, and drop your AI cast into your real room.</p>
+    <p class="note">Do the inside first. One good room beats four rushed ones, and it proves the
+    whole pipeline before you spend a weekend on the building.</p>
+  </div>
+</div>
+
+<script>
+  // Ticks survive the app being backgrounded mid-shoot; storage can be
+  // unavailable in a private window, so every access is guarded.
+  const KEY = "capture-day-v1";
+  const boxes = [...document.querySelectorAll("input[type=checkbox]")];
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+    boxes.forEach((b, i) => { b.checked = !!saved[i]; });
+  } catch (e) { /* no storage — start unticked */ }
+  const save = () => {
+    try { localStorage.setItem(KEY, JSON.stringify(boxes.map(b => b.checked))); }
+    catch (e) { /* nothing to do */ }
+  };
+  boxes.forEach(b => b.addEventListener("change", save));
+</script>
