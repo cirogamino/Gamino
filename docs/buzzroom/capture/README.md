@@ -38,11 +38,23 @@ walls cannot be added afterwards. That splits the work by what is actually ready
   to give the scene real-world scale.
 - **Interior, later.** The photoreal room can only be captured once the room exists.
 
-Construction-specific hazards: sheet plastic flutters and is translucent, both of
-which the solver handles badly, so pin it flat or pull it; site lighting is dim,
-which forces a slow shutter and reintroduces motion blur, so bring work lights; and
-a path must be walkable end to end, since frame overlap cannot be held while
-climbing over material.
+Construction-specific hazards:
+
+- **The vapour barrier is the ceiling, not an obstruction.** It is stapled to the
+  rafters over the insulation and drywall goes on top of it later, so it never
+  comes down and there is no "with plastic / without plastic" pair of captures to
+  shoot. Only runs still hanging loose matter, because unstapled plastic moves
+  between frames.
+- **Specular reflection is the real risk, not movement.** A light aimed at sheeting
+  throws a hot highlight that shifts with the camera, and view-dependent
+  reflections bake into the reconstruction as floating artefacts. Bounce all light
+  off the floor or a wall.
+- **Expect a soft ceiling.** A large translucent low-texture surface is among the
+  hardest things to reconstruct; the ceiling will be the weakest region and that is
+  acceptable, since the scene is read at floor level.
+- Site lighting is dim, which forces a slow shutter and reintroduces motion blur.
+- A path must be walkable end to end — frame overlap cannot be held while climbing
+  over material.
 
 ## Pipeline
 
