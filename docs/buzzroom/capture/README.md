@@ -23,6 +23,27 @@ Exposure and focus must be locked before the first frame. Auto-exposure flicker
 between frames is the most common cause of a failed reconstruction — ahead of
 resolution, camera, or software choice.
 
+## Capturing before the building is finished
+
+A splat reproduces only what was in front of the lens. It is not a mesh and carries
+no editable geometry, so a scan of a gutted shell yields a photoreal gutted shell —
+walls cannot be added afterwards. That splits the work by what is actually ready:
+
+- **Exterior, now.** The Greenfield Avenue facade is finished and unaffected by the
+  interior demolition. It is the establishing shot and it can be shot today.
+- **Interior shell, now, as measurement.** Not the final look, but it captures true
+  footprint, ceiling height, and window and column positions, so the hand-built room
+  is modelled to real dimensions rather than guessed. Bare studs capture well —
+  plenty of texture, no mirrors or glass. Leave an object of known length in frame
+  to give the scene real-world scale.
+- **Interior, later.** The photoreal room can only be captured once the room exists.
+
+Construction-specific hazards: sheet plastic flutters and is translucent, both of
+which the solver handles badly, so pin it flat or pull it; site lighting is dim,
+which forces a slow shutter and reintroduces motion blur, so bring work lights; and
+a path must be walkable end to end, since frame overlap cannot be held while
+climbing over material.
+
 ## Pipeline
 
 1. Capture (phone, per the checklist).
