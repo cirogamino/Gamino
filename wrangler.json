@@ -16,5 +16,13 @@
       "binding": "TO_DO_LIST",
       "id": "36361a26931e4058839f0962a01fc275"
     }
+  ],
+  "d1_databases": [
+    {
+      "binding": "MONEY_DB",
+      "database_name": "gamino-money",
+      "database_id": "REPLACE_WITH_D1_ID",
+      "migrations_dir": "migrations"
+    }
   ]
 }

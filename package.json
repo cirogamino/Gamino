@@ -52,6 +52,7 @@
     "cf-typegen": "wrangler types",
     "deploy": "npm run build && wrangler deploy",
     "dev": "remix vite:dev",
+    "money:setup": "node ./scripts/setup-money.mjs",
     "lint": "eslint --ignore-pattern .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "preview": "npm run build && wrangler dev",
     "start": "wrangler dev",
