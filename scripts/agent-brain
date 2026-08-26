@@ -9,12 +9,21 @@
 #   ~/agent-brain/
 #     skills/      every skill, one copy
 #     memory/      symlink to the Obsidian vault
-#     CLAUDE.md    global directives, loaded by every session
+#     AGENTS.md    global directives, one copy, no vendor privileged
 #
 #   ~/.claude/skills          -> ~/agent-brain/skills
-#   ~/.claude/CLAUDE.md       -> ~/agent-brain/CLAUDE.md
 #   <project>/.claude/skills  -> ~/agent-brain/skills
 #   <project>/.agents/skills  -> ~/agent-brain/skills   (Codex, Cursor, Cline, Gemini CLI, ...)
+#
+# AGENTS.md is canonical because it is the only cross-vendor name — Codex and Amp
+# read it directly. Every other tool's filename is a symlink to it:
+#
+#   ~/.claude/CLAUDE.md       -> ~/agent-brain/AGENTS.md
+#   ~/.codex/AGENTS.md        -> ~/agent-brain/AGENTS.md
+#   ~/.gemini/GEMINI.md       -> ~/agent-brain/AGENTS.md
+#
+# Project-level instruction files are NOT replaced. They hold project-specific
+# context and are left alone; a link is only created where no file exists.
 #
 # Usage:
 #   agent-brain init                 set up the brain, adopt existing skills, wire ~/.claude
@@ -136,15 +145,20 @@ cmd_init() {
     dim "~/.claude/skills already linked"
   fi
 
-  if [ ! -e "$BRAIN/CLAUDE.md" ]; then
-    write_default_claude_md
-    ok "wrote $BRAIN/CLAUDE.md"
+  if [ ! -e "$BRAIN/AGENTS.md" ]; then
+    write_default_agents_md
+    ok "wrote $BRAIN/AGENTS.md"
   fi
-  if link "$BRAIN/CLAUDE.md" "$HOME/.claude/CLAUDE.md"; then
-    ok "linked ~/.claude/CLAUDE.md -> $BRAIN/CLAUDE.md"
-  else
-    dim "~/.claude/CLAUDE.md already linked"
-  fi
+
+  # Every vendor's filename points at the one real file. No tool is privileged.
+  local vendor
+  for vendor in ".claude/CLAUDE.md" ".codex/AGENTS.md" ".gemini/GEMINI.md" ".config/amp/AGENTS.md"; do
+    if link "$BRAIN/AGENTS.md" "$HOME/$vendor"; then
+      ok "linked ~/$vendor -> AGENTS.md"
+    else
+      dim "~/$vendor already linked"
+    fi
+  done
 
   # 3. Wire memory to the Obsidian vault.
   local vault; vault="$(find_vault || true)"
@@ -181,6 +195,17 @@ cmd_link() {
   local changed=0
   link "$BRAIN/skills" "$proj/.claude/skills" && changed=1
   link "$BRAIN/skills" "$proj/.agents/skills" && changed=1
+
+  # Instruction files: only fill gaps. A project's own AGENTS.md / CLAUDE.md holds
+  # project-specific context and is never replaced by the global one.
+  local f
+  for f in "AGENTS.md" "CLAUDE.md" "GEMINI.md"; do
+    if [ -e "$proj/$f" ] && [ ! -L "$proj/$f" ]; then
+      dim "kept project's own $f (not replaced)"
+    elif link "$BRAIN/AGENTS.md" "$proj/$f"; then
+      changed=1
+    fi
+  done
 
   # Keep the symlinks out of the project's git history — the brain is the source.
   if [ -d "$proj/.git" ]; then
@@ -225,7 +250,8 @@ cmd_status() {
   echo
   echo "links:"
   local l
-  for l in "$HOME/.claude/skills" "$HOME/.claude/CLAUDE.md"; do
+  for l in "$HOME/.claude/skills" "$HOME/.claude/CLAUDE.md" \
+           "$HOME/.codex/AGENTS.md" "$HOME/.gemini/GEMINI.md" "$HOME/.config/amp/AGENTS.md"; do
     if [ -L "$l" ]; then
       printf '  %s -> %s\n' "${l/#$HOME/~}" "$(readlink "$l")"
     else
@@ -234,11 +260,13 @@ cmd_status() {
   done
 }
 
-write_default_claude_md() {
-  cat > "$BRAIN/CLAUDE.md" <<'MD'
+write_default_agents_md() {
+  cat > "$BRAIN/AGENTS.md" <<'MD'
 # Global agent directives
 
-Loaded by every session, in every project, for every agent.
+Loaded by every session, in every project, for every agent — Claude Code, Codex,
+Cursor, Cline, Gemini CLI, Amp. Each tool's own filename is a symlink to this
+file, so there is one set of rules and no vendor is treated differently.
 
 ## Response style — always on
 
