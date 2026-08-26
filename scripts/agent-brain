@@ -52,10 +52,47 @@ warn() { printf '%s warn %s%s\n'   "$c_warn" "$c_off" "$*"; }
 err()  { printf '%s fail %s%s\n'   "$c_err"  "$c_off" "$*" >&2; }
 dim()  { printf '%s      %s%s\n'   "$c_dim"  "$*"     "$c_off"; }
 
-# The primary business account. The brain follows this account, not whichever
-# Drive happens to be mounted first — with several accounts signed in, picking
-# by glob order silently puts the brain in the wrong Drive.
-PRIMARY_ACCOUNT="${AGENT_BRAIN_ACCOUNT:-cito@citodominio.com}"
+# The primary business account. Never hardcoded and never inferred — an address
+# guessed from a transcript or from a session's own metadata is how company files
+# end up in a personal Drive. Set once with `agent-brain account <email>`; stored
+# in the brain and reused from then on.
+ACCOUNT_FILE_CANDIDATES=(
+  "${AGENT_BRAIN:-}/ACCOUNT"
+  "$HOME/Library/CloudStorage"/GoogleDrive-*/"My Drive/agent-brain/ACCOUNT"
+  "$HOME/agent-brain/ACCOUNT"
+  "$HOME/.config/agent-brain/account"
+)
+read_account() {
+  [ -n "${AGENT_BRAIN_ACCOUNT:-}" ] && { echo "$AGENT_BRAIN_ACCOUNT"; return 0; }
+  local f
+  for f in "${ACCOUNT_FILE_CANDIDATES[@]}"; do
+    [ -f "$f" ] && { tr -d '[:space:]' < "$f"; return 0; }
+  done
+  return 1
+}
+PRIMARY_ACCOUNT="$(read_account || true)"
+
+require_account() {
+  [ -n "$PRIMARY_ACCOUNT" ] && return 0
+  err "no primary account set — refusing to guess which Google account owns the brain."
+  err "set it once, exactly as you type it:"
+  err "    agent-brain account you@yourdomain.com"
+  return 1
+}
+
+cmd_account() {
+  local addr="${1:-}"
+  if [ -z "$addr" ]; then
+    [ -n "$PRIMARY_ACCOUNT" ] && { echo "$PRIMARY_ACCOUNT"; return 0; }
+    err "usage: agent-brain account <email>"; return 1
+  fi
+  case "$addr" in *@*.*) ;; *) err "not an email address: $addr"; return 1 ;; esac
+  mkdir -p "$HOME/.config/agent-brain"
+  printf '%s\n' "$addr" > "$HOME/.config/agent-brain/account"
+  PRIMARY_ACCOUNT="$addr"
+  ok "primary account set to $addr"
+  dim "stored in ~/.config/agent-brain/account and copied into the brain on init"
+}
 
 find_drive() {
   local d mounts=() m
@@ -64,6 +101,7 @@ find_drive() {
   done
 
   # Exact account match always wins, no matter how many are mounted.
+  [ -z "$PRIMARY_ACCOUNT" ] && { [ "${#mounts[@]}" -eq 1 ] && { echo "${mounts[0]}/My Drive"; return 0; }; return 3; }
   for m in "${mounts[@]}"; do
     case "$m" in
       *"GoogleDrive-$PRIMARY_ACCOUNT") [ -d "$m/My Drive" ] && { echo "$m/My Drive"; return 0; } ;;
@@ -245,7 +283,9 @@ find_projects_dir() {
 }
 
 cmd_init() {
+  require_account || return 1
   echo "brain: $BRAIN"
+  echo "account: $PRIMARY_ACCOUNT"
   mkdir -p "$BRAIN/skills"
 
   # 1. Adopt every skills directory we can find, so nothing is lost.
@@ -268,6 +308,7 @@ cmd_init() {
   fi
 
   [ -e "$BRAIN/VERSION" ] || echo 1 > "$BRAIN/VERSION"
+  printf '%s\n' "$PRIMARY_ACCOUNT" > "$BRAIN/ACCOUNT"
 
   if [ ! -e "$BRAIN/AGENTS.md" ]; then
     write_default_agents_md
@@ -375,6 +416,7 @@ cmd_adopt() { adopt_skills_dir "${1:?usage: agent-brain adopt <skills-dir>}"; }
 cmd_status() {
   echo "== agent-brain status =="
   echo "brain:   $BRAIN"
+  echo "account: ${PRIMARY_ACCOUNT:-NOT SET — run: agent-brain account <email>}"
   if [ -d "$BRAIN/skills" ]; then
     echo "skills:  $(find "$BRAIN/skills" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l | tr -d ' ') installed"
   else
@@ -443,10 +485,10 @@ ambiguous. Resume after.
 
 ## Accounts and routing — settled, do not re-litigate
 
-The primary account is **cito@citodominio.com**. Everything — the brain, the
-vault, Drive files — belongs to that account. `cirosiphone@gmail.com` is a
-personal account and is never the target for company files, whatever address a
-session's own metadata reports.
+The primary account is recorded in `ACCOUNT`, next to this file. Read it rather
+than assuming — everything (brain, vault, Drive files) belongs to that account.
+A session's own metadata may report a different, personal address; it is never
+the target for company files.
 
 **Composio is the router for all Google access.** Use it for Drive, Gmail and
 Calendar. Do not reach for a native Google connector alongside it: two routes to
@@ -490,6 +532,7 @@ case "${1:-status}" in
   link-all) shift; cmd_link_all "$@" ;;
   adopt)    shift; cmd_adopt "$@" ;;
   bump)     shift; cmd_bump "$@" ;;
+  account)  shift; cmd_account "$@" ;;
   status)   shift; cmd_status "$@" ;;
   *) sed -n '2,40p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
