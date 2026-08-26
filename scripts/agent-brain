@@ -46,9 +46,41 @@ set -uo pipefail
 # symlinks and CLI agents work exactly as they would anywhere else — and it is
 # simultaneously a cloud path, so Claude web, ChatGPT and Gemini reach the same
 # files through their Drive connectors instead of needing pasted copies.
+c_ok=$'\033[32m'; c_warn=$'\033[33m'; c_err=$'\033[31m'; c_dim=$'\033[2m'; c_off=$'\033[0m'
+ok()   { printf '%s  ok  %s%s\n'   "$c_ok"   "$c_off" "$*"; }
+warn() { printf '%s warn %s%s\n'   "$c_warn" "$c_off" "$*"; }
+err()  { printf '%s fail %s%s\n'   "$c_err"  "$c_off" "$*" >&2; }
+dim()  { printf '%s      %s%s\n'   "$c_dim"  "$*"     "$c_off"; }
+
+# The primary business account. The brain follows this account, not whichever
+# Drive happens to be mounted first — with several accounts signed in, picking
+# by glob order silently puts the brain in the wrong Drive.
+PRIMARY_ACCOUNT="${AGENT_BRAIN_ACCOUNT:-cito@citodominio.com}"
+
 find_drive() {
-  local d
-  for d in "$HOME/Library/CloudStorage"/GoogleDrive-*/"My Drive" "$HOME/Google Drive/My Drive" "$HOME/Google Drive"; do
+  local d mounts=() m
+  for d in "$HOME/Library/CloudStorage"/GoogleDrive-*; do
+    [ -d "$d" ] && mounts+=("$d")
+  done
+
+  # Exact account match always wins, no matter how many are mounted.
+  for m in "${mounts[@]}"; do
+    case "$m" in
+      *"GoogleDrive-$PRIMARY_ACCOUNT") [ -d "$m/My Drive" ] && { echo "$m/My Drive"; return 0; } ;;
+    esac
+  done
+
+  if [ "${#mounts[@]}" -gt 1 ]; then
+    err "$PRIMARY_ACCOUNT is not mounted, and ${#mounts[@]} other Drive accounts are:"
+    for m in "${mounts[@]}"; do printf '        %s\n' "$(basename "$m" | sed 's/^GoogleDrive-//')" >&2; done
+    err "refusing to guess. Sign into $PRIMARY_ACCOUNT in Google Drive for Desktop,"
+    err "or re-run with AGENT_BRAIN_ACCOUNT=<the address you want>."
+    return 2
+  fi
+
+  [ "${#mounts[@]}" -eq 1 ] && [ -d "${mounts[0]}/My Drive" ] && { echo "${mounts[0]}/My Drive"; return 0; }
+
+  for d in "$HOME/Google Drive/My Drive" "$HOME/Google Drive"; do
     [ -d "$d" ] && { echo "$d"; return 0; }
   done
   return 1
@@ -56,10 +88,13 @@ find_drive() {
 
 if [ -n "${AGENT_BRAIN:-}" ]; then
   BRAIN="$AGENT_BRAIN"
-elif _drive="$(find_drive)"; then
-  BRAIN="$_drive/agent-brain"
 else
-  BRAIN="$HOME/agent-brain"
+  _drive="$(find_drive)"; _rc=$?
+  case "$_rc" in
+    0) BRAIN="$_drive/agent-brain" ;;
+    2) exit 2 ;;   # several accounts, none primary — never guess which Drive
+    *) BRAIN="$HOME/agent-brain" ;;
+  esac
 fi
 STAMP="$(date +%Y%m%d-%H%M%S)"
 TODAY="$(date +%Y-%m-%d)"
@@ -78,12 +113,6 @@ UI_TARGETS=(
   "gemini-web|Gemini (web app)|Gems > Edit Gem > Instructions"
   "copilot-chat|GitHub Copilot Chat (web)|Personal instructions"
 )
-
-c_ok=$'\033[32m'; c_warn=$'\033[33m'; c_err=$'\033[31m'; c_dim=$'\033[2m'; c_off=$'\033[0m'
-ok()   { printf '%s  ok  %s%s\n'   "$c_ok"   "$c_off" "$*"; }
-warn() { printf '%s warn %s%s\n'   "$c_warn" "$c_off" "$*"; }
-err()  { printf '%s fail %s%s\n'   "$c_err"  "$c_off" "$*" >&2; }
-dim()  { printf '%s      %s%s\n'   "$c_dim"  "$*"     "$c_off"; }
 
 backup() {
   # Move a path out of the way, preserving it. Never destructive.
