@@ -42,7 +42,25 @@
 
 set -uo pipefail
 
-BRAIN="${AGENT_BRAIN:-$HOME/agent-brain}"
+# Google Drive is the default home for the brain. It is a real local path, so
+# symlinks and CLI agents work exactly as they would anywhere else — and it is
+# simultaneously a cloud path, so Claude web, ChatGPT and Gemini reach the same
+# files through their Drive connectors instead of needing pasted copies.
+find_drive() {
+  local d
+  for d in "$HOME/Library/CloudStorage"/GoogleDrive-*/"My Drive" "$HOME/Google Drive/My Drive" "$HOME/Google Drive"; do
+    [ -d "$d" ] && { echo "$d"; return 0; }
+  done
+  return 1
+}
+
+if [ -n "${AGENT_BRAIN:-}" ]; then
+  BRAIN="$AGENT_BRAIN"
+elif _drive="$(find_drive)"; then
+  BRAIN="$_drive/agent-brain"
+else
+  BRAIN="$HOME/agent-brain"
+fi
 STAMP="$(date +%Y%m%d-%H%M%S)"
 TODAY="$(date +%Y-%m-%d)"
 BACKUP="$BRAIN/.backup/$STAMP"
@@ -252,13 +270,24 @@ cmd_init() {
     warn "no Obsidian vault found. Set OBSIDIAN_VAULT=/path/to/vault and re-run."
   fi
 
-  # 4. Make the brain a git repo so skills and directives are versioned.
-  if [ ! -d "$BRAIN/.git" ] && command -v git >/dev/null; then
-    git -C "$BRAIN" init -q 2>/dev/null && {
-      printf '.backup/\nmemory\n' > "$BRAIN/.gitignore"
-      ok "git repo initialised in brain (memory + .backup ignored)"
-    }
-  fi
+  # 4. Version the brain — but never with a git repo inside Google Drive.
+  # Drive rewrites files under .git mid-operation and corrupts the repository.
+  case "$BRAIN" in
+    *"CloudStorage"*|*"Google Drive"*)
+      ok "brain is in Google Drive — cloud chats can reach it via their Drive connector"
+      dim "Drive keeps file version history; skipping git (a repo inside Drive corrupts)"
+      warn "right-click the agent-brain folder in Finder → Available offline"
+      dim "otherwise Drive streams stubs and CLI agents read empty skill files"
+      ;;
+    *)
+      if [ ! -d "$BRAIN/.git" ] && command -v git >/dev/null; then
+        git -C "$BRAIN" init -q 2>/dev/null && {
+          printf '.backup/\nmemory\n' > "$BRAIN/.gitignore"
+          ok "git repo initialised in brain (memory + .backup ignored)"
+        }
+      fi
+      ;;
+  esac
 
   echo
   cmd_status
