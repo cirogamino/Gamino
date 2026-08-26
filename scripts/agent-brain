@@ -44,7 +44,22 @@ set -uo pipefail
 
 BRAIN="${AGENT_BRAIN:-$HOME/agent-brain}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
+TODAY="$(date +%Y-%m-%d)"
 BACKUP="$BRAIN/.backup/$STAMP"
+
+# Cloud-only products: no rules file exists on disk, so the brain holds the master
+# copy and you paste it into that product's settings screen. Stamped and dated
+# here so you can always see how stale each one is.
+UI_TARGETS=(
+  "claude-web|Claude (claude.ai web + iOS/Android)|Settings > Profile > personal preferences"
+  "claude-project|Claude Projects (web)|Project > Instructions"
+  "claude-cowork|Claude Cowork (desktop)|Settings > Cowork > Global instructions"
+  "chatgpt|ChatGPT (web, desktop, mobile)|Settings > Personalization > Custom instructions"
+  "perplexity|Perplexity|Space > Instructions (per Space)"
+  "grok|Grok (x.ai / X app)|Settings > Customize > Custom instructions"
+  "gemini-web|Gemini (web app)|Gems > Edit Gem > Instructions"
+  "copilot-chat|GitHub Copilot Chat (web)|Personal instructions"
+)
 
 c_ok=$'\033[32m'; c_warn=$'\033[33m'; c_err=$'\033[31m'; c_dim=$'\033[2m'; c_off=$'\033[0m'
 ok()   { printf '%s  ok  %s%s\n'   "$c_ok"   "$c_off" "$*"; }
@@ -97,6 +112,66 @@ adopt_skills_dir() {
   return 0
 }
 
+# --- versioning -------------------------------------------------------------
+# Every file the brain manages carries a version and a date on its first line,
+# so you can see at a glance how old a set of rules is and whether a cloud
+# product is running a stale copy.
+
+brain_version() { cat "$BRAIN/VERSION" 2>/dev/null || echo 1; }
+
+stamp_file() {
+  # Rewrite the header line of a managed file with the current version and date.
+  local f="$1" label="${2:-}" v; v="$(brain_version)"
+  [ -f "$f" ] || return 0
+  local header="<!-- agent-brain v$v · updated $TODAY · master: $BRAIN/${f#$BRAIN/}${label:+ · paste into: $label} -->"
+  local body; body="$(grep -v '^<!-- agent-brain v' "$f")"
+  printf '%s\n%s\n' "$header" "$body" > "$f"
+}
+
+stamp_all() {
+  stamp_file "$BRAIN/AGENTS.md"
+  local t id name where
+  for t in "${UI_TARGETS[@]}"; do
+    IFS='|' read -r id name where <<<"$t"
+    stamp_file "$BRAIN/ui/$id.md" "$name — $where"
+  done
+}
+
+cmd_bump() {
+  local v; v=$(( $(brain_version) + 1 ))
+  echo "$v" > "$BRAIN/VERSION"
+  stamp_all
+  ok "brain now v$v, all managed files stamped $TODAY"
+  warn "cloud products do not auto-update — re-paste from $BRAIN/ui/ (see: agent-brain status)"
+}
+
+# Master copies for products with no rules file on disk.
+write_ui_scaffold() {
+  mkdir -p "$BRAIN/ui"
+  local t id name where
+  for t in "${UI_TARGETS[@]}"; do
+    IFS='|' read -r id name where <<<"$t"
+    [ -e "$BRAIN/ui/$id.md" ] && continue
+    cat > "$BRAIN/ui/$id.md" <<EOF
+# Instructions — $name
+
+Master copy. This product has no rules file on disk, so paste this into:
+$where
+
+Keep it shorter than AGENTS.md — cloud products cap instruction length.
+
+---
+
+Respond terse. Drop filler, pleasantries, hedging. Technical substance,
+numbers, and exact error strings stay. Never drop not/never/no/only/except.
+
+Claims need receipts: a URL and its status, a commit SHA, or the exact command
+and its real output. Never report work done without one.
+EOF
+    stamp_file "$BRAIN/ui/$id.md" "$name — $where"
+  done
+}
+
 find_vault() {
   [ -n "${OBSIDIAN_VAULT:-}" ] && { echo "$OBSIDIAN_VAULT"; return; }
   # An Obsidian vault is any directory containing a .obsidian/ config dir.
@@ -145,10 +220,15 @@ cmd_init() {
     dim "~/.claude/skills already linked"
   fi
 
+  [ -e "$BRAIN/VERSION" ] || echo 1 > "$BRAIN/VERSION"
+
   if [ ! -e "$BRAIN/AGENTS.md" ]; then
     write_default_agents_md
     ok "wrote $BRAIN/AGENTS.md"
   fi
+  write_ui_scaffold
+  stamp_all
+  ok "stamped all managed files v$(brain_version) $TODAY"
 
   # Every vendor's filename points at the one real file. No tool is privileged.
   local vendor
@@ -258,6 +338,22 @@ cmd_status() {
       printf '  %s %s\n' "${l/#$HOME/~}" "NOT LINKED"
     fi
   done
+
+  echo
+  echo "cloud products — no rules file on disk, paste from the master copy:"
+  printf '  %-14s %-9s %-38s %s\n' "MASTER" "UPDATED" "PRODUCT" "PASTE INTO"
+  local t id name where f upd age
+  for t in "${UI_TARGETS[@]}"; do
+    IFS='|' read -r id name where <<<"$t"
+    f="$BRAIN/ui/$id.md"
+    if [ -f "$f" ]; then
+      upd="$(sed -n '1s/.*updated \([0-9-]*\).*/\1/p' "$f")"
+      age="$(( ( $(date +%s) - $(date -r "$f" +%s 2>/dev/null || echo 0) ) / 86400 ))"
+      printf '  %-14s %-9s %-38s %s\n' "ui/$id.md" "${upd:-?} (${age}d)" "$name" "$where"
+    else
+      printf '  %-14s %-9s %-38s %s\n' "ui/$id.md" "MISSING" "$name" "$where"
+    fi
+  done
 }
 
 write_default_agents_md() {
@@ -316,6 +412,7 @@ case "${1:-status}" in
   link)     shift; cmd_link "$@" ;;
   link-all) shift; cmd_link_all "$@" ;;
   adopt)    shift; cmd_adopt "$@" ;;
+  bump)     shift; cmd_bump "$@" ;;
   status)   shift; cmd_status "$@" ;;
   *) sed -n '2,40p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
