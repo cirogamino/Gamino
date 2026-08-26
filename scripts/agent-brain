@@ -441,6 +441,25 @@ Drop caveman temporarily for security warnings, irreversible-action
 confirmations, and multi-step sequences where dropped conjunctions make order
 ambiguous. Resume after.
 
+## Accounts and routing — settled, do not re-litigate
+
+The primary account is **cito@citodominio.com**. Everything — the brain, the
+vault, Drive files — belongs to that account. `cirosiphone@gmail.com` is a
+personal account and is never the target for company files, whatever address a
+session's own metadata reports.
+
+**Composio is the router for all Google access.** Use it for Drive, Gmail and
+Calendar. Do not reach for a native Google connector alongside it: two routes to
+the same service means an agent can silently use the wrong account, which is the
+failure this setup exists to prevent.
+
+The one exception is the local filesystem. Composio has no filesystem, so files
+under the Drive mount are read directly from disk by local agents. That is a
+different layer, not a second route.
+
+If a decision here looks wrong, say so and get it changed in this file. Do not
+work around it in a single session — the next session will not remember.
+
 ## Memory — read before answering
 
 Shared memory lives at `~/agent-brain/memory` (an Obsidian vault). It is the
