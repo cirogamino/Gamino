@@ -1,0 +1,36 @@
+# Job Order — copy, fill, file on the board.
+# Spec: ../02-job-order-spec.md
+
+id:            JO-YYYYMMDD-NNN
+lane:          # build | recon | mine | admin | prove
+title:         # imperative, one line
+assigned_to:   # agent_id from roster.yaml
+why_this_agent: # cite the capability card line. If you can't, don't assign it.
+box:           90m
+priority:      # P0 | P1 | P2
+
+inputs:
+  - # repo / branch / path / URL
+  - # where credentials live (the location, never the secret)
+  - # upstream job order IDs this depends on (must be ACCEPTED, not SUBMITTED)
+
+definition_of_done:
+  - # checkable by a stranger in under a minute
+  - #
+
+evidence_required:
+  - # url_200 | commit_sha | command_output | screenshot | record_id
+
+kill_criteria:
+  - # the walls, named in advance
+  - "any single error repeats 3 times → report BLOCKED with the verbatim error"
+
+escalate_to:   # section lead agent_id
+
+# --- filled in as it moves ---
+state:         QUEUED
+evidence:      []
+submitted_at:
+audited_by:
+verdict:
+audit_notes:

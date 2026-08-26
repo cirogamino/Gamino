@@ -1,0 +1,538 @@
+#!/usr/bin/env bash
+# agent-brain — one shared skills + memory store for every AI agent on this machine.
+#
+# Problem it solves: skills and memory get duplicated per-project and per-tool, so
+# every agent starts from a different brain and every chat starts from zero.
+#
+# Solution: one canonical directory. Everything else is a symlink into it.
+#
+#   ~/agent-brain/
+#     skills/      every skill, one copy
+#     memory/      symlink to the Obsidian vault
+#     AGENTS.md    global directives, one copy, no vendor privileged
+#
+#   ~/.claude/skills          -> ~/agent-brain/skills
+#   <project>/.claude/skills  -> ~/agent-brain/skills
+#   <project>/.agents/skills  -> ~/agent-brain/skills   (Codex, Cursor, Cline, Gemini CLI, ...)
+#
+# AGENTS.md is canonical because it is the only cross-vendor name — Codex and Amp
+# read it directly. Every other tool's filename is a symlink to it:
+#
+#   ~/.claude/CLAUDE.md       -> ~/agent-brain/AGENTS.md
+#   ~/.codex/AGENTS.md        -> ~/agent-brain/AGENTS.md
+#   ~/.gemini/GEMINI.md       -> ~/agent-brain/AGENTS.md
+#
+# Project-level instruction files are NOT replaced. They hold project-specific
+# context and are left alone; a link is only created where no file exists.
+#
+# Usage:
+#   agent-brain init                 set up the brain, adopt existing skills, wire ~/.claude
+#   agent-brain link <project-dir>   wire one project into the brain
+#   agent-brain link-all <root-dir>  wire every git repo / project under a root
+#   agent-brain status               show what is wired and what is not
+#   agent-brain adopt <dir>          pull a stray skills directory into the brain
+#
+# Env overrides:
+#   AGENT_BRAIN     brain location          (default: ~/agent-brain)
+#   OBSIDIAN_VAULT  vault path              (default: auto-detected)
+#   PROJECTS_DIR    projects root           (default: auto-detected)
+#
+# Safe by design: never deletes. Anything it replaces is moved to
+# $AGENT_BRAIN/.backup/<timestamp>/ first.
+
+set -uo pipefail
+
+# Google Drive is the default home for the brain. It is a real local path, so
+# symlinks and CLI agents work exactly as they would anywhere else — and it is
+# simultaneously a cloud path, so Claude web, ChatGPT and Gemini reach the same
+# files through their Drive connectors instead of needing pasted copies.
+c_ok=$'\033[32m'; c_warn=$'\033[33m'; c_err=$'\033[31m'; c_dim=$'\033[2m'; c_off=$'\033[0m'
+ok()   { printf '%s  ok  %s%s\n'   "$c_ok"   "$c_off" "$*"; }
+warn() { printf '%s warn %s%s\n'   "$c_warn" "$c_off" "$*"; }
+err()  { printf '%s fail %s%s\n'   "$c_err"  "$c_off" "$*" >&2; }
+dim()  { printf '%s      %s%s\n'   "$c_dim"  "$*"     "$c_off"; }
+
+# The primary business account. Never hardcoded and never inferred — an address
+# guessed from a transcript or from a session's own metadata is how company files
+# end up in a personal Drive. Set once with `agent-brain account <email>`; stored
+# in the brain and reused from then on.
+ACCOUNT_FILE_CANDIDATES=(
+  "${AGENT_BRAIN:-}/ACCOUNT"
+  "$HOME/Library/CloudStorage"/GoogleDrive-*/"My Drive/agent-brain/ACCOUNT"
+  "$HOME/agent-brain/ACCOUNT"
+  "$HOME/.config/agent-brain/account"
+)
+read_account() {
+  [ -n "${AGENT_BRAIN_ACCOUNT:-}" ] && { echo "$AGENT_BRAIN_ACCOUNT"; return 0; }
+  local f
+  for f in "${ACCOUNT_FILE_CANDIDATES[@]}"; do
+    [ -f "$f" ] && { tr -d '[:space:]' < "$f"; return 0; }
+  done
+  return 1
+}
+PRIMARY_ACCOUNT="$(read_account || true)"
+
+require_account() {
+  [ -n "$PRIMARY_ACCOUNT" ] && return 0
+  err "no primary account set — refusing to guess which Google account owns the brain."
+  err "set it once, exactly as you type it:"
+  err "    agent-brain account you@yourdomain.com"
+  return 1
+}
+
+cmd_account() {
+  local addr="${1:-}"
+  if [ -z "$addr" ]; then
+    [ -n "$PRIMARY_ACCOUNT" ] && { echo "$PRIMARY_ACCOUNT"; return 0; }
+    err "usage: agent-brain account <email>"; return 1
+  fi
+  case "$addr" in *@*.*) ;; *) err "not an email address: $addr"; return 1 ;; esac
+  mkdir -p "$HOME/.config/agent-brain"
+  printf '%s\n' "$addr" > "$HOME/.config/agent-brain/account"
+  PRIMARY_ACCOUNT="$addr"
+  ok "primary account set to $addr"
+  dim "stored in ~/.config/agent-brain/account and copied into the brain on init"
+}
+
+find_drive() {
+  local d mounts=() m
+  for d in "$HOME/Library/CloudStorage"/GoogleDrive-*; do
+    [ -d "$d" ] && mounts+=("$d")
+  done
+
+  # Exact account match always wins, no matter how many are mounted.
+  [ -z "$PRIMARY_ACCOUNT" ] && { [ "${#mounts[@]}" -eq 1 ] && { echo "${mounts[0]}/My Drive"; return 0; }; return 3; }
+  for m in "${mounts[@]}"; do
+    case "$m" in
+      *"GoogleDrive-$PRIMARY_ACCOUNT") [ -d "$m/My Drive" ] && { echo "$m/My Drive"; return 0; } ;;
+    esac
+  done
+
+  if [ "${#mounts[@]}" -gt 1 ]; then
+    err "$PRIMARY_ACCOUNT is not mounted, and ${#mounts[@]} other Drive accounts are:"
+    for m in "${mounts[@]}"; do printf '        %s\n' "$(basename "$m" | sed 's/^GoogleDrive-//')" >&2; done
+    err "refusing to guess. Sign into $PRIMARY_ACCOUNT in Google Drive for Desktop,"
+    err "or re-run with AGENT_BRAIN_ACCOUNT=<the address you want>."
+    return 2
+  fi
+
+  [ "${#mounts[@]}" -eq 1 ] && [ -d "${mounts[0]}/My Drive" ] && { echo "${mounts[0]}/My Drive"; return 0; }
+
+  for d in "$HOME/Google Drive/My Drive" "$HOME/Google Drive"; do
+    [ -d "$d" ] && { echo "$d"; return 0; }
+  done
+  return 1
+}
+
+if [ -n "${AGENT_BRAIN:-}" ]; then
+  BRAIN="$AGENT_BRAIN"
+else
+  _drive="$(find_drive)"; _rc=$?
+  case "$_rc" in
+    0) BRAIN="$_drive/agent-brain" ;;
+    2) exit 2 ;;   # several accounts, none primary — never guess which Drive
+    *) BRAIN="$HOME/agent-brain" ;;
+  esac
+fi
+STAMP="$(date +%Y%m%d-%H%M%S)"
+TODAY="$(date +%Y-%m-%d)"
+BACKUP="$BRAIN/.backup/$STAMP"
+
+# Cloud-only products: no rules file exists on disk, so the brain holds the master
+# copy and you paste it into that product's settings screen. Stamped and dated
+# here so you can always see how stale each one is.
+UI_TARGETS=(
+  "claude-web|Claude (claude.ai web + iOS/Android)|Settings > Profile > personal preferences"
+  "claude-project|Claude Projects (web)|Project > Instructions"
+  "claude-cowork|Claude Cowork (desktop)|Settings > Cowork > Global instructions"
+  "chatgpt|ChatGPT (web, desktop, mobile)|Settings > Personalization > Custom instructions"
+  "perplexity|Perplexity|Space > Instructions (per Space)"
+  "grok|Grok (x.ai / X app)|Settings > Customize > Custom instructions"
+  "gemini-web|Gemini (web app)|Gems > Edit Gem > Instructions"
+  "copilot-chat|GitHub Copilot Chat (web)|Personal instructions"
+)
+
+backup() {
+  # Move a path out of the way, preserving it. Never destructive.
+  local path="$1"
+  [ -e "$path" ] || [ -L "$path" ] || return 0
+  mkdir -p "$BACKUP"
+  local dest="$BACKUP/$(echo "${path#$HOME/}" | tr '/' '_')"
+  mv "$path" "$dest"
+  dim "backed up $path -> $dest"
+}
+
+# Symlink src -> dest, idempotently. Returns 0 if it changed something.
+link() {
+  local target="$1" linkpath="$2"
+  if [ -L "$linkpath" ] && [ "$(readlink "$linkpath")" = "$target" ]; then
+    return 1  # already correct
+  fi
+  mkdir -p "$(dirname "$linkpath")"
+  backup "$linkpath"
+  ln -s "$target" "$linkpath"
+  return 0
+}
+
+# Copy any skills found at $1 into the brain without clobbering existing ones.
+adopt_skills_dir() {
+  local src="$1" adopted=0 skipped=0
+  [ -d "$src" ] || return 0
+  # Resolve through symlinks; if it already points into the brain, nothing to do.
+  case "$(cd "$src" 2>/dev/null && pwd -P)" in
+    "$BRAIN"/*|"$BRAIN") return 0 ;;
+  esac
+  local entry name
+  for entry in "$src"/*/; do
+    [ -d "$entry" ] || continue
+    name="$(basename "$entry")"
+    if [ -e "$BRAIN/skills/$name" ]; then
+      skipped=$((skipped+1))
+      continue
+    fi
+    cp -RL "$entry" "$BRAIN/skills/$name" 2>/dev/null && adopted=$((adopted+1))
+  done
+  [ "$adopted" -gt 0 ] && ok "adopted $adopted skill(s) from $src"
+  [ "$skipped" -gt 0 ] && dim "skipped $skipped already in brain"
+  return 0
+}
+
+# --- versioning -------------------------------------------------------------
+# Every file the brain manages carries a version and a date on its first line,
+# so you can see at a glance how old a set of rules is and whether a cloud
+# product is running a stale copy.
+
+brain_version() { cat "$BRAIN/VERSION" 2>/dev/null || echo 1; }
+
+stamp_file() {
+  # Rewrite the header line of a managed file with the current version and date.
+  local f="$1" label="${2:-}" v; v="$(brain_version)"
+  [ -f "$f" ] || return 0
+  local header="<!-- agent-brain v$v · updated $TODAY · master: $BRAIN/${f#$BRAIN/}${label:+ · paste into: $label} -->"
+  local body; body="$(grep -v '^<!-- agent-brain v' "$f")"
+  printf '%s\n%s\n' "$header" "$body" > "$f"
+}
+
+stamp_all() {
+  stamp_file "$BRAIN/AGENTS.md"
+  local t id name where
+  for t in "${UI_TARGETS[@]}"; do
+    IFS='|' read -r id name where <<<"$t"
+    stamp_file "$BRAIN/ui/$id.md" "$name — $where"
+  done
+}
+
+cmd_bump() {
+  local v; v=$(( $(brain_version) + 1 ))
+  echo "$v" > "$BRAIN/VERSION"
+  stamp_all
+  ok "brain now v$v, all managed files stamped $TODAY"
+  warn "cloud products do not auto-update — re-paste from $BRAIN/ui/ (see: agent-brain status)"
+}
+
+# Master copies for products with no rules file on disk.
+write_ui_scaffold() {
+  mkdir -p "$BRAIN/ui"
+  local t id name where
+  for t in "${UI_TARGETS[@]}"; do
+    IFS='|' read -r id name where <<<"$t"
+    [ -e "$BRAIN/ui/$id.md" ] && continue
+    cat > "$BRAIN/ui/$id.md" <<EOF
+# Instructions — $name
+
+Master copy. This product has no rules file on disk, so paste this into:
+$where
+
+Keep it shorter than AGENTS.md — cloud products cap instruction length.
+
+---
+
+Respond terse. Drop filler, pleasantries, hedging. Technical substance,
+numbers, and exact error strings stay. Never drop not/never/no/only/except.
+
+Claims need receipts: a URL and its status, a commit SHA, or the exact command
+and its real output. Never report work done without one.
+EOF
+    stamp_file "$BRAIN/ui/$id.md" "$name — $where"
+  done
+}
+
+find_vault() {
+  [ -n "${OBSIDIAN_VAULT:-}" ] && { echo "$OBSIDIAN_VAULT"; return; }
+  # An Obsidian vault is any directory containing a .obsidian/ config dir.
+  local candidates=(
+    "$HOME/Documents" "$HOME/Obsidian" "$HOME/obsidian"
+    "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents" "$HOME"
+  )
+  local base hit
+  for base in "${candidates[@]}"; do
+    [ -d "$base" ] || continue
+    hit="$(find "$base" -maxdepth 3 -type d -name .obsidian -not -path '*/node_modules/*' 2>/dev/null | head -1)"
+    [ -n "$hit" ] && { dirname "$hit"; return; }
+  done
+  return 1
+}
+
+find_projects_dir() {
+  [ -n "${PROJECTS_DIR:-}" ] && { echo "$PROJECTS_DIR"; return; }
+  local d
+  for d in "$HOME/Projects" "$HOME/projects" "$HOME/Developer" "$HOME/dev" "$HOME/Documents/Projects" "$HOME/code"; do
+    [ -d "$d" ] && { echo "$d"; return; }
+  done
+  return 1
+}
+
+cmd_init() {
+  require_account || return 1
+  echo "brain: $BRAIN"
+  echo "account: $PRIMARY_ACCOUNT"
+  mkdir -p "$BRAIN/skills"
+
+  # 1. Adopt every skills directory we can find, so nothing is lost.
+  adopt_skills_dir "$HOME/.claude/skills"
+  adopt_skills_dir "$HOME/.agents/skills"
+  local pd; pd="$(find_projects_dir || true)"
+  if [ -n "$pd" ]; then
+    local p
+    for p in "$pd"/*/; do
+      adopt_skills_dir "$p/.agents/skills"
+      adopt_skills_dir "$p/.claude/skills"
+    done
+  fi
+
+  # 2. Wire the user-level Claude Code paths.
+  if link "$BRAIN/skills" "$HOME/.claude/skills"; then
+    ok "linked ~/.claude/skills -> $BRAIN/skills"
+  else
+    dim "~/.claude/skills already linked"
+  fi
+
+  [ -e "$BRAIN/VERSION" ] || echo 1 > "$BRAIN/VERSION"
+  printf '%s\n' "$PRIMARY_ACCOUNT" > "$BRAIN/ACCOUNT"
+
+  if [ ! -e "$BRAIN/AGENTS.md" ]; then
+    write_default_agents_md
+    ok "wrote $BRAIN/AGENTS.md"
+  fi
+  write_ui_scaffold
+  stamp_all
+  ok "stamped all managed files v$(brain_version) $TODAY"
+
+  # Every vendor's filename points at the one real file. No tool is privileged.
+  local vendor
+  for vendor in ".claude/CLAUDE.md" ".codex/AGENTS.md" ".gemini/GEMINI.md" ".config/amp/AGENTS.md"; do
+    if link "$BRAIN/AGENTS.md" "$HOME/$vendor"; then
+      ok "linked ~/$vendor -> AGENTS.md"
+    else
+      dim "~/$vendor already linked"
+    fi
+  done
+
+  # 3. Wire memory to the Obsidian vault.
+  local vault; vault="$(find_vault || true)"
+  if [ -n "$vault" ]; then
+    if link "$vault" "$BRAIN/memory"; then
+      ok "linked memory -> $vault"
+    else
+      dim "memory already linked -> $vault"
+    fi
+  else
+    warn "no Obsidian vault found. Set OBSIDIAN_VAULT=/path/to/vault and re-run."
+  fi
+
+  # 4. Version the brain — but never with a git repo inside Google Drive.
+  # Drive rewrites files under .git mid-operation and corrupts the repository.
+  case "$BRAIN" in
+    *"CloudStorage"*|*"Google Drive"*)
+      ok "brain is in Google Drive — cloud chats can reach it via their Drive connector"
+      dim "Drive keeps file version history; skipping git (a repo inside Drive corrupts)"
+      warn "right-click the agent-brain folder in Finder → Available offline"
+      dim "otherwise Drive streams stubs and CLI agents read empty skill files"
+      ;;
+    *)
+      if [ ! -d "$BRAIN/.git" ] && command -v git >/dev/null; then
+        git -C "$BRAIN" init -q 2>/dev/null && {
+          printf '.backup/\nmemory\n' > "$BRAIN/.gitignore"
+          ok "git repo initialised in brain (memory + .backup ignored)"
+        }
+      fi
+      ;;
+  esac
+
+  echo
+  cmd_status
+}
+
+cmd_link() {
+  local proj="${1:?usage: agent-brain link <project-dir>}"
+  [ -d "$proj" ] || { err "not a directory: $proj"; return 1; }
+  proj="$(cd "$proj" && pwd -P)"
+
+  adopt_skills_dir "$proj/.claude/skills"
+  adopt_skills_dir "$proj/.agents/skills"
+
+  local changed=0
+  link "$BRAIN/skills" "$proj/.claude/skills" && changed=1
+  link "$BRAIN/skills" "$proj/.agents/skills" && changed=1
+
+  # Instruction files: only fill gaps. A project's own AGENTS.md / CLAUDE.md holds
+  # project-specific context and is never replaced by the global one.
+  local f
+  for f in "AGENTS.md" "CLAUDE.md" "GEMINI.md"; do
+    if [ -e "$proj/$f" ] && [ ! -L "$proj/$f" ]; then
+      dim "kept project's own $f (not replaced)"
+    elif link "$BRAIN/AGENTS.md" "$proj/$f"; then
+      changed=1
+    fi
+  done
+
+  # Keep the symlinks out of the project's git history — the brain is the source.
+  if [ -d "$proj/.git" ]; then
+    local gi="$proj/.gitignore"
+    grep -qxF '.agents/skills' "$gi" 2>/dev/null || {
+      printf '\n# shared agent brain (symlinks into ~/agent-brain)\n.agents/skills\n.claude/skills\nskills-lock.json\n' >> "$gi"
+      dim "added symlinks to $proj/.gitignore"
+    }
+  fi
+
+  if [ "$changed" = 1 ]; then ok "wired $proj"; else dim "already wired $proj"; fi
+}
+
+cmd_link_all() {
+  local root="${1:-$(find_projects_dir || echo "$HOME/Projects")}"
+  [ -d "$root" ] || { err "no projects dir: $root. Pass one or set PROJECTS_DIR."; return 1; }
+  echo "projects root: $root"
+  local p n=0
+  for p in "$root"/*/; do
+    [ -d "$p" ] || continue
+    cmd_link "$p"
+    n=$((n+1))
+  done
+  ok "wired $n project(s) under $root"
+}
+
+cmd_adopt() { adopt_skills_dir "${1:?usage: agent-brain adopt <skills-dir>}"; }
+
+cmd_status() {
+  echo "== agent-brain status =="
+  echo "brain:   $BRAIN"
+  echo "account: ${PRIMARY_ACCOUNT:-NOT SET — run: agent-brain account <email>}"
+  if [ -d "$BRAIN/skills" ]; then
+    echo "skills:  $(find "$BRAIN/skills" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l | tr -d ' ') installed"
+  else
+    warn "no skills dir — run: agent-brain init"
+  fi
+  if [ -L "$BRAIN/memory" ]; then
+    echo "memory:  $(readlink "$BRAIN/memory")"
+  else
+    warn "memory:  not linked (set OBSIDIAN_VAULT and re-run init)"
+  fi
+  echo
+  echo "links:"
+  local l
+  for l in "$HOME/.claude/skills" "$HOME/.claude/CLAUDE.md" \
+           "$HOME/.codex/AGENTS.md" "$HOME/.gemini/GEMINI.md" "$HOME/.config/amp/AGENTS.md"; do
+    if [ -L "$l" ]; then
+      printf '  %s -> %s\n' "${l/#$HOME/~}" "$(readlink "$l")"
+    else
+      printf '  %s %s\n' "${l/#$HOME/~}" "NOT LINKED"
+    fi
+  done
+
+  echo
+  echo "cloud products — no rules file on disk, paste from the master copy:"
+  printf '  %-14s %-9s %-38s %s\n' "MASTER" "UPDATED" "PRODUCT" "PASTE INTO"
+  local t id name where f upd age
+  for t in "${UI_TARGETS[@]}"; do
+    IFS='|' read -r id name where <<<"$t"
+    f="$BRAIN/ui/$id.md"
+    if [ -f "$f" ]; then
+      upd="$(sed -n '1s/.*updated \([0-9-]*\).*/\1/p' "$f")"
+      age="$(( ( $(date +%s) - $(date -r "$f" +%s 2>/dev/null || echo 0) ) / 86400 ))"
+      printf '  %-14s %-9s %-38s %s\n' "ui/$id.md" "${upd:-?} (${age}d)" "$name" "$where"
+    else
+      printf '  %-14s %-9s %-38s %s\n' "ui/$id.md" "MISSING" "$name" "$where"
+    fi
+  done
+}
+
+write_default_agents_md() {
+  cat > "$BRAIN/AGENTS.md" <<'MD'
+# Global agent directives
+
+Loaded by every session, in every project, for every agent — Claude Code, Codex,
+Cursor, Cline, Gemini CLI, Amp. Each tool's own filename is a symlink to this
+file, so there is one set of rules and no vendor is treated differently.
+
+## Response style — always on
+
+Caveman mode is ALWAYS ACTIVE. Do not wait to be asked. Do not announce it.
+Level: full. Full rules in `skills/caveman/SKILL.md`.
+
+Terse. Drop articles, filler, pleasantries, hedging. Fragments fine. All
+technical substance stays — numbers, units, error strings, code exact. Never
+drop not/never/no/only/except.
+
+Off only on "stop caveman" or "normal mode".
+
+Does NOT apply to anything persisted outside chat: code, comments, commit
+messages, PR and issue bodies, review comments, docs, messages to other people.
+Rule: if someone not in this session will read it, write normal English.
+
+Drop caveman temporarily for security warnings, irreversible-action
+confirmations, and multi-step sequences where dropped conjunctions make order
+ambiguous. Resume after.
+
+## Accounts and routing — settled, do not re-litigate
+
+The primary account is recorded in `ACCOUNT`, next to this file. Read it rather
+than assuming — everything (brain, vault, Drive files) belongs to that account.
+A session's own metadata may report a different, personal address; it is never
+the target for company files.
+
+**Composio is the router for all Google access.** Use it for Drive, Gmail and
+Calendar. Do not reach for a native Google connector alongside it: two routes to
+the same service means an agent can silently use the wrong account, which is the
+failure this setup exists to prevent.
+
+The one exception is the local filesystem. Composio has no filesystem, so files
+under the Drive mount are read directly from disk by local agents. That is a
+different layer, not a second route.
+
+If a decision here looks wrong, say so and get it changed in this file. Do not
+work around it in a single session — the next session will not remember.
+
+## Memory — read before answering
+
+Shared memory lives at `~/agent-brain/memory` (an Obsidian vault). It is the
+same brain for every AI and every conversation.
+
+Before answering anything that depends on prior context, project state, people,
+decisions, or preferences: search the vault. Do not start from zero.
+
+After any session that produces a durable fact — a decision, a credential
+location, a preference, a project's state, something learned about a tool —
+write it to the vault. Use the existing note structure and wikilinks. A fact
+that only exists in a chat transcript is lost.
+
+## Receipt Rule
+
+Claims need receipts. Never report work done without one of: a URL and its
+status line, a commit SHA, the exact command and its real output, or a record
+ID. Banned: "should work", "should be live", "deployed" with no 200, "tests
+pass" with no runner output.
+
+Compression never removes a receipt. Quote the shortest decisive line — exact.
+MD
+}
+
+case "${1:-status}" in
+  init)     shift; cmd_init "$@" ;;
+  link)     shift; cmd_link "$@" ;;
+  link-all) shift; cmd_link_all "$@" ;;
+  adopt)    shift; cmd_adopt "$@" ;;
+  bump)     shift; cmd_bump "$@" ;;
+  account)  shift; cmd_account "$@" ;;
+  status)   shift; cmd_status "$@" ;;
+  *) sed -n '2,40p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+esac

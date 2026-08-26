@@ -1,0 +1,43 @@
+# Proving Run Verdict — one per tool, Block 3.
+# Spec: ../04-proving-run-protocol.md
+
+tool:
+canonical_name:         # same normalization as the software list — this is a join key
+proving_agent:
+recommended_by: []      # which agents put it on their top 10
+corpus_mentions:        # cross-video mention count from the extraction table
+started_at:
+submitted_at:
+
+# --- Deliverable 1: real work ---
+job_order_completed:    # the real JO ID — not a demo
+artifact_url:
+completed_in_box:       # true | false
+
+# --- Deliverable 2: stress ---
+concurrency_ceiling:    # MEASURED. e.g. "8 parallel before 429". This is your fleet
+                        # scheduling constraint — do not estimate it.
+volume_ceiling:
+auth_survived_load:     # true | false — any mid-run 401s?
+idempotent:             # true | false | partial. Agents retry; non-idempotent = data risk.
+
+# --- Deliverable 3: SOP ---
+sop_path:
+sop_followed_by_auditor: # true | false — did a fresh agent get a result without improvising?
+
+# --- Deliverable 4: verdict ---
+verdict:                # ADOPT | TRIAL | REJECT
+confidence:             # HIGH | MED | LOW
+adopt_because:          # cite the artifact, not the marketing
+reject_because:
+trial_conditions:       # what must be true to promote, and by when
+replaces:               # named tool or manual process retired. "NOTHING" is a valid answer
+                        # and raises the bar considerably.
+cost_at_100x:
+integration_effort:     # hours to wire into the fleet properly
+blast_radius:           # what breaks if this goes down mid-workflow
+
+# --- audit ---
+audited_by:             # must NOT be the proving agent
+audit_verdict:          # ACCEPTED | REJECTED
+audit_notes:

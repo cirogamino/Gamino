@@ -6,3 +6,8 @@ node_modules
 .dev.vars
 
 .wrangler
+
+# third-party skills (installed via: npx skills add JuliusBrussee/caveman)
+.agents/
+.claude/
+skills-lock.json
