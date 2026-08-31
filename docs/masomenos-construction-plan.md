@@ -740,6 +740,234 @@ property managers called, licensing question answered. Not a crew standing in yo
 
 ---
 
+## 15. Version 3 — the money, and three ways to run it
+
+### 15.1 The one number that decides everything: utilization
+
+Not your bill rate. Every handyman business models bill rate and dies on utilization.
+
+| Line | Value |
+|---|---|
+| Bill rate | $85.00 / hr |
+| Tech wage | $30.00 / hr |
+| Payroll burden (FICA 7.65% + comp ~12% + SUTA ~2%) | ~22% → **$36.60 / hr loaded** |
+| Billable utilization (drive, quoting, shop, gaps) | **65%** |
+| Effective revenue per *paid* hour | $85 × 0.65 = $55.25 |
+| **Contribution per paid hour** | **$18.65** |
+
+That $18.65 — not the $48.40 you'd get by subtracting wage from bill rate — is the real
+number. The gap between those two figures is where handyman companies quietly bleed out.
+
+**Per tech, per year** (2,000 paid hours):
+
+| | |
+|---|---|
+| Revenue | $110,500 |
+| Loaded labor | $73,200 |
+| Labor gross profit | $37,300 |
+| Materials markup (~30% on ~$35k) | $10,500 |
+| **Gross profit per tech** | **≈ $47,800 / yr — $3,983 / mo** |
+
+**Fixed monthly overhead** (small shop): van + fuel + maint + auto insurance $900 · GL $150 ·
+software (CRM, scheduling, call tracking, books) $350 · phone/misc $150 · marketing $1,500 ·
+bookkeeper $600 → **≈ $3,650/mo.**
+
+> **Tech #1 produces $3,983 against $3,650 of overhead. You net $333 a month — you are
+> working for free.** Profit starts at tech #2. Real money starts at tech #3.
+
+### 15.2 Why mini splits change the math completely
+
+| | Single-zone | Multi-zone (3 head) |
+|---|---|---|
+| Retail | $4,500 | $12,000 |
+| Equipment | $1,300 | $3,800 |
+| Other materials | $200 | $500 |
+| Labor (2 techs, loaded) | 16 h = $586 | 32 h = $1,171 |
+| **Gross profit** | **$2,414 (54%)** | **$6,529 (54%)** |
+
+Put that against the $18.65 contribution per paid handyman hour:
+
+> **One single-zone mini split ≈ 129 paid tech-hours of handyman contribution — over three
+> weeks of one tech's output, earned in a single day by two people.**
+
+And the break-even that follows:
+
+> **Two mini splits a month covers 100% of your fixed overhead.** Everything after that is
+> profit. That is the whole financial thesis of rung 2.
+
+### 15.3 Three action plans
+
+#### Plan A — Cash Floor
+*Lowest risk. Slowest ceiling. You stay in the truck longest.*
+
+- **Capital in:** $8–12k — hand tools, used van, LLC, GL, no ad spend
+- **Marketing:** property-manager relationships and organic only (~$300/mo)
+- **Headcount:** you + 1 tech by month 4, 2 techs by month 10
+- **Month 12 run rate:** 2 techs, 3 mini splits/mo
+  - Handyman GP 2 × $3,983 = $7,966 · Mini split GP 3 × $2,414 = $7,242
+  - Total GP $15,208 − overhead ~$4,500 = **≈ $10,700/mo operating profit**
+- **Year 1 revenue:** ≈ $300–380k
+- **Reaches rung 3:** month 18–24
+- **Fails if:** you never get out of the truck, so it caps at your own two hands.
+
+#### Plan B — Two-Track *(recommended)*
+*The plan as written. Handyman crew and the paid validation test running together.*
+
+- **Capital in:** $28–35k — tools, van, $1,500/mo ads from month 1, two hires by month 3, plus
+  working capital to float payroll ahead of collections
+- **Headcount:** 2 techs by month 3, 4 by month 12
+- **Month 12 run rate:** 4 techs, 8 single-zone + 2 multi-zone per month
+  - Handyman GP 4 × $3,983 = $15,932
+  - Mini split GP (8 × $2,414) + (2 × $6,529) = $32,370
+  - Total GP ≈ $48,300 − overhead ~$11,000 = **≈ $37,000/mo operating profit**
+- **Year 1 revenue:** ≈ $550–650k actual (month-12 *run rate* ≈ $950k–1.0M)
+- **Reaches rung 3:** month 9–12, insourcing the first high-ticket trade
+- **Fails if:** you are still swinging a hammer in month 4. This plan needs you selling,
+  quoting and recruiting full-time — that is the single point of failure.
+
+#### Plan C — Acquisition Shortcut
+*Highest risk, fastest. Buys away the two hardest problems in Plan B.*
+
+Buy a small existing handyman or HVAC shop from a retiring owner — 2–4 techs, $400–800k
+revenue.
+
+- **Typical pricing:** 2.5–3.5× SDE. SDE of $150k → **$400–500k**
+- **SBA 7(a):** ~10% down = **$40–50k**, seller note often carries another 10%, ten-year term
+- **Debt service:** ~$450k at ~10.5% over 10 yr ≈ **$6,100/mo**
+- **What you buy on day one:** a trained crew, a customer list, existing cash flow, and —
+  critically — **the licensing problem solved** (§14.4)
+- **Month 12:** ≈ $700k run rate, **$8–12k/mo profit after debt service**
+- **Fails if:** you don't underwrite it properly. Three diligence items that kill these deals:
+  1. **Is the HVAC licence actually transferable, or does it die with the owner?** This is the
+     number one thing buyers get wrong when the licence is the reason they're buying.
+  2. **How much of the revenue is the owner personally?** If customers follow him, you bought a van.
+  3. **Customer concentration** — one property management company at 40% of revenue is a risk, not an asset.
+
+### 15.4 Side by side
+
+| | **A · Cash Floor** | **B · Two-Track** | **C · Acquisition** |
+|---|---|---|---|
+| Capital in | $8–12k | $28–35k | $40–50k down |
+| Month-12 profit | ~$10.7k/mo | ~$37k/mo | ~$8–12k/mo (post-debt) |
+| Year-1 revenue | $300–380k | $550–650k | ~$700k |
+| Reaches rung 3 | Month 18–24 | Month 9–12 | Month 6–9 |
+| Biggest risk | Caps at your two hands | You never leave the truck | You buy someone's problems |
+| Solves licensing? | No | No | **Yes** |
+| Solves hiring? | No | No | **Yes** |
+
+### 15.5 The recommendation
+
+**Run Plan B — but spend two weeks looking at Plan C first.**
+
+The reasoning: B is the best risk-adjusted build, but C is the only option that buys away
+both of B's hardest problems — hiring and licensing — with money instead of eighteen months.
+Small trades shops with retiring owners are a real and active market. Two weeks of looking
+costs you almost nothing; if a clean deal with a transferable licence exists in your market,
+it collapses your timeline by a year and a half. If it doesn't, you start Plan B on day
+fifteen having lost nothing.
+
+**Do not run A unless your capital is genuinely capped at $12k.** It's not a worse plan —
+it's a plan for a different constraint.
+
+---
+
+## 16. Twenty-five levers — more money, less effort
+
+Ranked into five groups. The top five by dollars-per-hour-of-effort are called out at the end.
+
+### A. Money per job (pricing and margin)
+
+1. **Switch from hourly to flat-rate task pricing.** The single biggest structural lever in
+   handyman work. On T&M, a fast tech *earns you less* — flat rate inverts that, kills the
+   "how many hours?" negotiation, and hides your labor cost. Build a menu of your 40 most
+   common tasks once; use it forever.
+2. **Raise prices 10% and lose almost nobody.** On a 54% gross margin job, +10% price takes
+   margin to ~59% — roughly **20% more gross profit for zero extra work.** Run it 30 days;
+   if close rate drops under 5 points, keep it permanently.
+3. **Good / Better / Best on every mini split quote.** Three options, anchored high. The mix
+   shifts up and a large share pick the middle instead of the cheapest. Cost: one template.
+4. **Two-hour minimum plus a trip charge, enforced.** Kills the $90 job that eats a
+   three-hour round trip. Everyone knows this; almost nobody enforces it.
+5. **Charge for estimates over $5k, credited back on signing.** Filters tire-kickers, and
+   the people who pay for an estimate close at multiples of the rate of those who don't.
+6. **Sell a maintenance plan on every mini split.** Annual clean and inspect, $180–250/yr,
+   ~70% margin, recurring. **100 units under contract ≈ $20k+/yr of near-passive revenue** —
+   and a warm list for replacements later.
+7. **Hold a 30% materials markup, itemised as "materials & handling."** Most small shops
+   pass materials near cost. That discipline alone is $8–15k per tech per year.
+
+### B. Volume (more jobs, same effort)
+
+8. **Sell the next job on the current job.** Every tech leaves with a three-item "while I
+   was here I noticed…" list. Highest-converting lead source in home services, costs $0,
+   and typically adds **15–25% revenue.**
+9. **Neighbour blitz after every job** — 20 door hangers on that street, same day.
+   Proximity plus visible proof. Raises route density *and* lowers drive time.
+10. **Bid the whole punch list, not the one item.** Ask the property manager for the full
+    make-ready checklist. One dispatch, ten line items, no extra drive.
+11. **Be the after-hours guy.** Most shops don't answer at 6pm or on Saturday. Property
+    managers have emergencies then. Premium rate, almost no competition, instant loyalty.
+12. **Get formally onto 2–3 PM vendor lists** — W-9, certificate of insurance, vendor
+    portal. Boring paperwork that most competitors won't do, and it turns into a recurring
+    dispatch queue.
+13. **Free "will a mini split work in my space?" assessment** as the lead magnet. High
+    intent, converts hot, and it puts you inside the house.
+
+### C. Speed (cycle time is cash)
+
+14. **Deposit on every job, e-signed on the spot.** Kills the receivables problem before it
+    exists. The single biggest cash-flow fix in the trades.
+15. **Same-day invoicing, card on file, auto-charge on completion.** Going from 30-day to
+    3-day collection on a $60k/mo business frees roughly **$54k of working capital** you are
+    currently financing for free.
+16. **Route density rule: never book two same-day jobs more than 15 minutes apart.** Moving
+    utilization from 65% to 75% is a **~15% revenue increase on identical payroll** — worth
+    more than hiring another tech.
+17. **Standardise truck stock.** One parts list, identical in every van, restocked weekly.
+    Supply-house runs are the biggest silent utilization killer at 45–90 minutes each.
+18. **Photo pre-qualification before rolling a truck.** Customer texts photos; you quote or
+    disqualify without driving. Saves one to two wasted trips per tech per week.
+19. **Batch mini splits geographically.** Two installs in one neighbourhood on one day
+    shares the drive and the equipment run.
+
+### D. Cost
+
+20. **Open a real distributor account instead of buying retail.** Trade pricing can cut
+    equipment cost 15–30%. On $3,800 of multi-zone equipment that's **$600–1,100 straight to
+    profit, per job.**
+21. **Get your workers' comp class codes audited.** Handyman, HVAC and excavation codes
+    differ enormously and misclassification quietly costs thousands a year. One call to your
+    broker.
+22. **Hire tech #2 before you feel ready.** Tech #1 nets you $333/mo (§15.1). Tech #2 is
+    where money actually starts. Most owners wait six months too long and stay broke working
+    seventy hours.
+23. **Fire the worst 10% of customers every year.** Chronic complainers and slow payers eat
+    a wildly disproportionate share of admin. Raise their price 30% — they either leave or
+    become profitable. Either outcome is a win.
+
+### E. Leverage (assets that compound)
+
+24. **One codebase, config-driven, for every trade and metro.** New city or new trade = a
+    config file, not a new build. Every competitor pays an agency $3k a site. **This is your
+    actual unfair advantage** — nobody else in your market has it.
+25. **Film every job: 20 photos and one 60-second vertical.** Feeds the website, the
+    business profile and social simultaneously, forever, free. Twelve months in you hold
+    ~400 pieces of proof no competitor can replicate.
+
+### The five that pay first
+
+| # | Lever | Why it's first |
+|---|---|---|
+| 1 | Flat-rate pricing (**#1**) | Structural. Inverts the speed incentive permanently. |
+| 2 | Sell the next job on site (**#8**) | Free 15–25% revenue, starts tomorrow. |
+| 3 | Deposit + same-day invoice (**#14, #15**) | Solves cash flow, the actual killer. |
+| 4 | Route density (**#16**) | ~15% revenue on the same payroll. |
+| 5 | Raise prices 10% (**#2**) | ~20% more gross profit for one afternoon of work. |
+
+Run those five before you touch anything else on this list.
+
+---
+
 ## Appendix — open questions
 
 - What state / metro? Changes licensing, comp rates, and search competitiveness materially.
