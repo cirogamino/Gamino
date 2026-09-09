@@ -4,8 +4,8 @@
 Regenerate with `npm run build-log`.
 
 - **Build started:** `2026-09-09T21:16:58Z`
-- **Last generated:** `2026-09-09T21:23:55Z`
-- **Progress:** 14 of 25 built · 11 pending
+- **Last generated:** `2026-09-09T21:26:26Z`
+- **Progress:** 19 of 25 built · 6 pending
 - **Verify independently:** `git log --format='%h %aI %s' -- app/ops` — commit times
   are signed by git and match the table below.
 
@@ -45,12 +45,12 @@ Regenerate with `npm run build-log`.
 
 | | # | Lever | Kind | Start | Finish | Took | Status |
 |---|---|---|---|---|---|---|---|
-| [ ] | 14 | **Deposit on every job, e-signed on the spot** | code | — | — | — | PENDING |
-| [ ] | 15 | **Same-day invoice, card on file, auto-charge** | code | — | — | — | PENDING |
-| [ ] | 16 | **Route density rule: 15 minutes between same-day jobs** | code | — | — | — | PENDING |
-| [ ] | 17 | **Standardised truck stock, weekly restock** | code | — | — | — | PENDING |
+| [x] | 14 | **Deposit on every job, e-signed on the spot** | code | 21:22:59 | 21:24:27 | 88s | TESTED |
+| [x] | 15 | **Same-day invoice, card on file, auto-charge** | code | 21:24:27 | 21:24:27 | 0s | TESTED |
+| [x] | 16 | **Route density rule: 15 minutes between same-day jobs** | code | 21:24:27 | 21:24:53 | 26s | TESTED |
+| [x] | 17 | **Standardised truck stock, weekly restock** | code | 21:24:53 | 21:25:16 | 23s | TESTED |
 | [x] | 18 | **Photo pre-qualification before rolling a truck** | code | 21:22:59 | 21:22:59 | 0s | TESTED |
-| [ ] | 19 | **Batch mini split installs geographically** | code | — | — | — | PENDING |
+| [x] | 19 | **Batch mini split installs geographically** | code | 21:24:53 | 21:24:53 | 0s | TESTED |
 
 ## D · Cost
 
