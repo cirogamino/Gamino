@@ -1,0 +1,255 @@
+{
+  "$comment": "Single source of truth for the 25 operating levers. Read by app/ops/levers.ts (typed accessors) and by scripts/build-log.mjs (generates BUILD-LOG.md from real file mtimes). Adding a lever = add an entry here, create its files, re-run `npm run build-log`.",
+  "levers": [
+    {
+      "id": 1,
+      "slug": "flat-rate-pricing",
+      "group": "money",
+      "title": "Flat-rate task pricing, not hourly",
+      "impact": "Inverts the speed incentive. On T&M a fast tech earns you less.",
+      "kind": "code",
+      "files": ["app/ops/pricing.ts"],
+      "tests": ["test/pricing.test.ts"]
+    },
+    {
+      "id": 2,
+      "slug": "price-rise",
+      "group": "money",
+      "title": "Raise prices 10% and measure close rate",
+      "impact": "+10% price on a 54% margin job is ~20% more gross profit.",
+      "kind": "code",
+      "files": ["app/ops/pricing.ts"],
+      "tests": ["test/pricing.test.ts"]
+    },
+    {
+      "id": 3,
+      "slug": "good-better-best",
+      "group": "money",
+      "title": "Good / Better / Best on every quote",
+      "impact": "Anchors high, shifts the mix up off the cheapest option.",
+      "kind": "code",
+      "files": ["app/ops/quote.ts"],
+      "tests": ["test/quote.test.ts"]
+    },
+    {
+      "id": 4,
+      "slug": "minimums",
+      "group": "money",
+      "title": "Two-hour minimum plus trip charge, enforced",
+      "impact": "Kills the $90 job that eats a three-hour round trip.",
+      "kind": "code",
+      "files": ["app/ops/pricing.ts"],
+      "tests": ["test/pricing.test.ts"]
+    },
+    {
+      "id": 5,
+      "slug": "estimate-fee",
+      "group": "money",
+      "title": "Paid estimates over $5k, credited on signing",
+      "impact": "Filters tire-kickers; payers close at multiples of the rate.",
+      "kind": "code",
+      "files": ["app/ops/quote.ts"],
+      "tests": ["test/quote.test.ts"]
+    },
+    {
+      "id": 6,
+      "slug": "maintenance-plans",
+      "group": "money",
+      "title": "Maintenance plan on every mini split",
+      "impact": "100 units under contract is $20k+/yr recurring at ~70% margin.",
+      "kind": "code",
+      "files": ["app/ops/plans.ts"],
+      "tests": ["test/plans.test.ts"]
+    },
+    {
+      "id": 7,
+      "slug": "materials-markup",
+      "group": "money",
+      "title": "Hold a 30% materials markup",
+      "impact": "$8-15k per tech per year that most shops give away.",
+      "kind": "code",
+      "files": ["app/ops/pricing.ts"],
+      "tests": ["test/pricing.test.ts"]
+    },
+    {
+      "id": 8,
+      "slug": "next-job-capture",
+      "group": "volume",
+      "title": "Sell the next job on the current job",
+      "impact": "Free 15-25% revenue. Highest-converting source in home services.",
+      "kind": "code",
+      "files": ["app/ops/sales.ts"],
+      "tests": ["test/sales.test.ts"]
+    },
+    {
+      "id": 9,
+      "slug": "neighbor-blitz",
+      "group": "volume",
+      "title": "Neighbour blitz after every job",
+      "impact": "Raises route density and cuts drive time at the same time.",
+      "kind": "code",
+      "files": ["app/ops/sales.ts"],
+      "tests": ["test/sales.test.ts"]
+    },
+    {
+      "id": 10,
+      "slug": "whole-punchlist",
+      "group": "volume",
+      "title": "Bid the whole punch list, not the one item",
+      "impact": "One dispatch, ten line items, no extra drive.",
+      "kind": "code",
+      "files": ["app/ops/sales.ts"],
+      "tests": ["test/sales.test.ts"]
+    },
+    {
+      "id": 11,
+      "slug": "after-hours",
+      "group": "volume",
+      "title": "Be the after-hours provider",
+      "impact": "Premium rate, near-zero competition, instant PM loyalty.",
+      "kind": "code",
+      "files": ["app/ops/pricing.ts"],
+      "tests": ["test/pricing.test.ts"]
+    },
+    {
+      "id": 12,
+      "slug": "vendor-compliance",
+      "group": "volume",
+      "title": "Get formally onto property-manager vendor lists",
+      "impact": "Boring paperwork competitors skip; becomes a dispatch queue.",
+      "kind": "code",
+      "files": ["app/ops/sales.ts"],
+      "tests": ["test/sales.test.ts"]
+    },
+    {
+      "id": 13,
+      "slug": "mini-split-assessment",
+      "group": "volume",
+      "title": "Free mini split suitability assessment as lead magnet",
+      "impact": "High intent, converts hot, puts you inside the house.",
+      "kind": "code",
+      "files": ["app/ops/intake.ts"],
+      "tests": ["test/intake.test.ts"]
+    },
+    {
+      "id": 14,
+      "slug": "deposits",
+      "group": "speed",
+      "title": "Deposit on every job, e-signed on the spot",
+      "impact": "Kills the receivables problem before it exists.",
+      "kind": "code",
+      "files": ["app/ops/cash.ts"],
+      "tests": ["test/cash.test.ts"]
+    },
+    {
+      "id": 15,
+      "slug": "same-day-invoicing",
+      "group": "speed",
+      "title": "Same-day invoice, card on file, auto-charge",
+      "impact": "30-day to 3-day DSO on $60k/mo frees ~$54k of working capital.",
+      "kind": "code",
+      "files": ["app/ops/cash.ts"],
+      "tests": ["test/cash.test.ts"]
+    },
+    {
+      "id": 16,
+      "slug": "route-density",
+      "group": "speed",
+      "title": "Route density rule: 15 minutes between same-day jobs",
+      "impact": "65% to 75% utilization is ~15% more revenue on identical payroll.",
+      "kind": "code",
+      "files": ["app/ops/schedule.ts"],
+      "tests": ["test/schedule.test.ts"]
+    },
+    {
+      "id": 17,
+      "slug": "truck-stock",
+      "group": "speed",
+      "title": "Standardised truck stock, weekly restock",
+      "impact": "Supply-house runs cost 45-90 minutes each and are invisible.",
+      "kind": "code",
+      "files": ["app/ops/inventory.ts"],
+      "tests": ["test/inventory.test.ts"]
+    },
+    {
+      "id": 18,
+      "slug": "photo-prequal",
+      "group": "speed",
+      "title": "Photo pre-qualification before rolling a truck",
+      "impact": "Saves one to two wasted trips per tech per week.",
+      "kind": "code",
+      "files": ["app/ops/intake.ts"],
+      "tests": ["test/intake.test.ts"]
+    },
+    {
+      "id": 19,
+      "slug": "geo-batching",
+      "group": "speed",
+      "title": "Batch mini split installs geographically",
+      "impact": "Two installs in one neighbourhood shares drive and equipment run.",
+      "kind": "code",
+      "files": ["app/ops/schedule.ts"],
+      "tests": ["test/schedule.test.ts"]
+    },
+    {
+      "id": 20,
+      "slug": "distributor-pricing",
+      "group": "cost",
+      "title": "Distributor account instead of retail",
+      "impact": "15-30% off equipment: $600-1,100 per multi-zone job.",
+      "kind": "code",
+      "files": ["app/ops/cost.ts"],
+      "tests": ["test/cost.test.ts"]
+    },
+    {
+      "id": 21,
+      "slug": "comp-code-audit",
+      "group": "cost",
+      "title": "Audit workers' comp class codes",
+      "impact": "Misclassification quietly costs thousands a year.",
+      "kind": "sop",
+      "files": ["app/ops/cost.ts", "docs/sop/comp-code-audit.md"],
+      "tests": ["test/cost.test.ts"]
+    },
+    {
+      "id": 22,
+      "slug": "hiring-trigger",
+      "group": "cost",
+      "title": "Hire tech #2 before you feel ready",
+      "impact": "Tech #1 nets $333/mo. Profit starts at tech #2.",
+      "kind": "code",
+      "files": ["app/ops/cost.ts"],
+      "tests": ["test/cost.test.ts"]
+    },
+    {
+      "id": 23,
+      "slug": "customer-cull",
+      "group": "cost",
+      "title": "Fire the worst 10% of customers annually",
+      "impact": "Raise their price 30%: they leave or become profitable.",
+      "kind": "code",
+      "files": ["app/ops/cost.ts"],
+      "tests": ["test/cost.test.ts"]
+    },
+    {
+      "id": 24,
+      "slug": "config-driven-sites",
+      "group": "leverage",
+      "title": "One config-driven codebase for every trade and metro",
+      "impact": "New city is a config file. Competitors pay an agency $3k a site.",
+      "kind": "code",
+      "files": ["app/ops/sites.ts"],
+      "tests": ["test/sites.test.ts"]
+    },
+    {
+      "id": 25,
+      "slug": "job-media",
+      "group": "leverage",
+      "title": "Film every job: 20 photos and one 60-second vertical",
+      "impact": "~400 pieces of proof in twelve months that nobody can replicate.",
+      "kind": "code",
+      "files": ["app/ops/media.ts"],
+      "tests": ["test/media.test.ts"]
+    }
+  ]
+}
