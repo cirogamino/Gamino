@@ -4,8 +4,8 @@
 Regenerate with `npm run build-log`.
 
 - **Build started:** `2026-09-09T21:16:58Z`
-- **Last generated:** `2026-09-09T21:18:15Z`
-- **Progress:** 0 of 25 built · 25 pending
+- **Last generated:** `2026-09-09T21:21:43Z`
+- **Progress:** 8 of 25 built · 17 pending
 - **Verify independently:** `git log --format='%h %aI %s' -- app/ops` — commit times
   are signed by git and match the table below.
 
@@ -22,13 +22,13 @@ Regenerate with `npm run build-log`.
 
 | | # | Lever | Kind | Start | Finish | Took | Status |
 |---|---|---|---|---|---|---|---|
-| [ ] | 1 | **Flat-rate task pricing, not hourly** | code | — | — | — | PENDING |
-| [ ] | 2 | **Raise prices 10% and measure close rate** | code | — | — | — | PENDING |
-| [ ] | 3 | **Good / Better / Best on every quote** | code | — | — | — | PENDING |
-| [ ] | 4 | **Two-hour minimum plus trip charge, enforced** | code | — | — | — | PENDING |
-| [ ] | 5 | **Paid estimates over $5k, credited on signing** | code | — | — | — | PENDING |
-| [ ] | 6 | **Maintenance plan on every mini split** | code | — | — | — | PENDING |
-| [ ] | 7 | **Hold a 30% materials markup** | code | — | — | — | PENDING |
+| [x] | 1 | **Flat-rate task pricing, not hourly** | code | 21:16:58 | 21:19:09 | 132s | TESTED |
+| [x] | 2 | **Raise prices 10% and measure close rate** | code | 21:19:09 | 21:19:09 | 0s | TESTED |
+| [x] | 3 | **Good / Better / Best on every quote** | code | 21:19:09 | 21:19:33 | 23s | TESTED |
+| [x] | 4 | **Two-hour minimum plus trip charge, enforced** | code | 21:19:09 | 21:19:09 | 0s | TESTED |
+| [x] | 5 | **Paid estimates over $5k, credited on signing** | code | 21:19:33 | 21:19:33 | 0s | TESTED |
+| [x] | 6 | **Maintenance plan on every mini split** | code | 21:19:33 | 21:19:51 | 18s | TESTED |
+| [x] | 7 | **Hold a 30% materials markup** | code | 21:19:09 | 21:19:09 | 0s | TESTED |
 
 ## B · Volume
 
@@ -37,7 +37,7 @@ Regenerate with `npm run build-log`.
 | [ ] | 8 | **Sell the next job on the current job** | code | — | — | — | PENDING |
 | [ ] | 9 | **Neighbour blitz after every job** | code | — | — | — | PENDING |
 | [ ] | 10 | **Bid the whole punch list, not the one item** | code | — | — | — | PENDING |
-| [ ] | 11 | **Be the after-hours provider** | code | — | — | — | PENDING |
+| [x] | 11 | **Be the after-hours provider** | code | 21:19:09 | 21:19:09 | 0s | TESTED |
 | [ ] | 12 | **Get formally onto property-manager vendor lists** | code | — | — | — | PENDING |
 | [ ] | 13 | **Free mini split suitability assessment as lead magnet** | code | — | — | — | PENDING |
 
