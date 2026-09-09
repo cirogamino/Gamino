@@ -4,8 +4,8 @@
 Regenerate with `npm run build-log`.
 
 - **Build started:** `2026-09-09T21:16:58Z`
-- **Last generated:** `2026-09-09T21:28:25Z`
-- **Progress:** 23 of 25 built · 2 pending
+- **Last generated:** `2026-09-09T21:30:53Z`
+- **Progress:** 25 of 25 built · 0 pending
 - **Verify independently:** `git log --format='%h %aI %s' -- app/ops` — commit times
   are signed by git and match the table below.
 
@@ -65,8 +65,8 @@ Regenerate with `npm run build-log`.
 
 | | # | Lever | Kind | Start | Finish | Took | Status |
 |---|---|---|---|---|---|---|---|
-| [ ] | 24 | **One config-driven codebase for every trade and metro** | code | — | — | — | PENDING |
-| [ ] | 25 | **Film every job: 20 photos and one 60-second vertical** | code | — | — | — | PENDING |
+| [x] | 24 | **One config-driven codebase for every trade and metro** | code | 21:27:41 | 21:29:08 | 87s | TESTED |
+| [x] | 25 | **Film every job: 20 photos and one 60-second vertical** | code | 21:29:08 | 21:29:31 | 23s | TESTED |
 
 ## Where each lever lives
 
