@@ -4,8 +4,8 @@
 Regenerate with `npm run build-log`.
 
 - **Build started:** `2026-09-09T21:16:58Z`
-- **Last generated:** `2026-09-09T21:26:26Z`
-- **Progress:** 19 of 25 built · 6 pending
+- **Last generated:** `2026-09-09T21:28:25Z`
+- **Progress:** 23 of 25 built · 2 pending
 - **Verify independently:** `git log --format='%h %aI %s' -- app/ops` — commit times
   are signed by git and match the table below.
 
@@ -56,10 +56,10 @@ Regenerate with `npm run build-log`.
 
 | | # | Lever | Kind | Start | Finish | Took | Status |
 |---|---|---|---|---|---|---|---|
-| [ ] | 20 | **Distributor account instead of retail** | code | — | — | — | PENDING |
-| [ ] | 21 | **Audit workers' comp class codes** | sop | — | — | — | PENDING |
-| [ ] | 22 | **Hire tech #2 before you feel ready** | code | — | — | — | PENDING |
-| [ ] | 23 | **Fire the worst 10% of customers annually** | code | — | — | — | PENDING |
+| [x] | 20 | **Distributor account instead of retail** | code | 21:25:16 | 21:27:18 | 122s | TESTED |
+| [x] | 21 | **Audit workers' comp class codes** | sop | 21:27:18 | 21:27:41 | 23s | TESTED |
+| [x] | 22 | **Hire tech #2 before you feel ready** | code | 21:27:18 | 21:27:18 | 0s | TESTED |
+| [x] | 23 | **Fire the worst 10% of customers annually** | code | 21:27:18 | 21:27:18 | 0s | TESTED |
 
 ## E · Leverage
 
