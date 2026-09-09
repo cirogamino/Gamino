@@ -57,7 +57,9 @@
     "start": "wrangler dev",
     "test": "vitest",
     "typecheck": "tsc",
-    "typegen": "wrangler types"
+    "typegen": "wrangler types",
+    "build-log": "node scripts/build-log.mjs",
+    "build-log:check": "node scripts/build-log.mjs --check"
   },
   "sideEffects": false,
   "type": "module"
